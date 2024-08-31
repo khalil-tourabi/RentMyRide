@@ -1,0 +1,162 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// Enum for User Types
+enum UserType {
+  ADMIN
+  CLIENT
+  AGENCY
+}
+
+/// Enum for Booking Status
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+/// Enum for Payment Methods
+enum PaymentMethod {
+  ONLINE
+  AGENCY
+}
+
+/// Enum for Feature Categories
+enum FeatureCategory {
+  SAFETY
+  COMFORT
+  TECHNOLOGY
+  OTHER
+}
+
+/// Model for Users
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  password  String
+  email     String    @unique
+  phone     String?
+  createdAt DateTime  @default(now())
+  userType  UserType
+  cars      Car[]     @relation("UserCars")
+  bookings  Booking[] @relation("RenterBookings")
+  reviews   Review[]  @relation("UserReviews")
+
+  @@index([email])
+  @@index([phone])
+}
+
+/// Model for Locations
+model Location {
+  id        Int    @id @default(autoincrement())
+  cityName  String @unique
+  latitude  Float
+  longitude Float
+  cars      Car[]
+
+  @@index([cityName])
+}
+
+/// Model for Cars
+model Car {
+  id            Int          @id @default(autoincrement())
+  ownerId       Int
+  brand         String
+  model         String
+  year          Int
+  mileage       Int
+  description   String?
+  dailyPrice    Float
+  availableFrom DateTime
+  availableTo   DateTime
+  locationId    Int
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  owner         User         @relation("UserCars", fields: [ownerId], references: [id])
+  location      Location     @relation(fields: [locationId], references: [id])
+  bookings      Booking[]
+  reviews       Review[]
+  carFeatures   CarFeature[]
+
+  @@index([brand, model, year])
+  @@index([locationId])
+}
+
+/// Model for Features
+model Feature {
+  id                     Int                   @id @default(autoincrement())
+  name                   String                @unique
+  category               FeatureCategory
+  carFeatures            CarFeature[]
+  FeatureCategoryModel   FeatureCategoryModel? @relation(fields: [featureCategoryModelId], references: [id])
+  featureCategoryModelId Int?
+
+  @@index([category])
+}
+
+/// Model for CarFeatures (Join Table)
+model CarFeature {
+  id        Int     @id @default(autoincrement())
+  carId     Int
+  featureId Int
+  car       Car     @relation(fields: [carId], references: [id])
+  feature   Feature @relation(fields: [featureId], references: [id])
+
+  @@unique([carId, featureId])
+  @@index([featureId])
+}
+
+/// Model for Bookings
+model Booking {
+  id              Int           @id @default(autoincrement())
+  carId           Int
+  renterId        Int
+  startDate       DateTime
+  endDate         DateTime
+  totalAmount     Float
+  paymentMethod   PaymentMethod
+  bookingDate     DateTime      @default(now())
+  status          BookingStatus
+  deliveryAddress String?
+  returnAddress   String?
+  deliveryTime    DateTime?
+  returnTime      DateTime?
+  car             Car           @relation(fields: [carId], references: [id])
+  renter          User          @relation("RenterBookings", fields: [renterId], references: [id])
+
+  @@index([carId])
+  @@index([renterId])
+  @@index([status])
+}
+
+/// Model for Reviews
+model Review {
+  id         Int      @id @default(autoincrement())
+  carId      Int
+  renterId   Int
+  rating     Int      @map("note") // Rating from 1 to 5
+  comment    String?
+  reviewDate DateTime @default(now())
+  car        Car      @relation(fields: [carId], references: [id])
+  renter     User     @relation("UserReviews", fields: [renterId], references: [id])
+
+  @@index([carId])
+  @@index([renterId])
+}
+
+/// Optional: Model for Feature Categories (if you prefer a separate table)
+model FeatureCategoryModel {
+  id       Int             @id @default(autoincrement())
+  name     FeatureCategory @unique
+  features Feature[]
+
+  @@index([name])
+}

@@ -1,123 +1,123 @@
-# Plateforme de Location de Voitures en Ligne
+# Online Car Rental Platform
 
-## Vue d'Ensemble
+## Overview
 
-### Idée du Projet
+### Project Idea
 
-Le projet consiste à développer une **plateforme en ligne pour la location de voitures**, permettant aux utilisateurs de trouver et louer divers types de véhicules auprès de plusieurs agences de location. La plateforme permettra :
-- **Recherche de voitures**
-- **Consultation de détails et de photos**
-- **Paiement en ligne ou à l'agence**
-- **Services de livraison et de retour** à l'adresse spécifiée par l'utilisateur
+The project involves developing an **online car rental platform** where users can find and rent various types of vehicles from multiple rental agencies. The platform will allow:
+- **Car Search**
+- **Detailed Information and Photos**
+- **Online or In-Agency Payment**
+- **Delivery and Return Services** to the user's specified address
 
-### Besoin Adressé
+### Addressed Need
 
-Les processus traditionnels de location de voitures sont souvent longs et peu pratiques. Cette plateforme vise à simplifier et rendre ce processus plus pratique.
+Traditional car rental processes are often lengthy and inconvenient, requiring visits to multiple agencies to find the right vehicle. This platform aims to streamline and simplify the process.
 
-### Solution Fournie
+### Provided Solution
 
-- **Base de Données Centralisée** : Agrégation des options de location de plusieurs agences.
-- **Annonces Détaillées** : Informations complètes et photos des voitures pour faciliter la décision.
-- **Paiement en Ligne** : Possibilité de payer en ligne ou à l'agence.
-- **Services de Livraison et de Retour** : Options pratiques pour la livraison et le retour de la voiture.
+- **Centralized Database**: Aggregates rental options from multiple agencies.
+- **Detailed Listings**: Comprehensive information and photos of cars to aid decision-making.
+- **Online Payment**: Ability to pay online or at the rental agency.
+- **Delivery and Return Services**: Convenient options for car delivery and pickup.
 
-## Histoires Utilisateur
+## User Stories
 
-1. **Recherche d'une Voiture à Louer**
-   - **En tant qu'utilisateur**, je veux rechercher des voitures disponibles pour trouver celle qui correspond à mes besoins.
-   - **Étapes** : Ouvrir l'application, entrer les critères de recherche, voir la liste des voitures disponibles, sélectionner une voiture et consulter ses détails.
+1. **Searching for a Rental Car**
+   - **As a user**, I want to search for available rental cars to find one that suits my needs.
+   - **Steps**: Open the app, enter search criteria, view the list of available cars, select a car and review its details.
 
-2. **Consulter les Détails d'une Voiture**
-   - **En tant qu'utilisateur**, je veux consulter les informations détaillées et les photos d'une voiture pour prendre une décision éclairée.
-   - **Étapes** : Sélectionner une voiture, consulter les informations détaillées, parcourir les photos, lire les avis des précédents locataires.
+2. **Viewing Car Details**
+   - **As a user**, I want to view detailed information and photos of a rental car to make an informed decision.
+   - **Steps**: Select a car, view detailed information, browse photos, read previous renters' reviews.
 
-3. **Réserver une Voiture de Location**
-   - **En tant qu'utilisateur**, je veux réserver une voiture en ligne pour sécuriser ma location à l'avance.
-   - **Étapes** : Sélectionner une voiture, choisir les dates et services supplémentaires, confirmer les détails, choisir un mode de paiement, recevoir une confirmation.
+3. **Booking a Rental Car**
+   - **As a user**, I want to book a rental car online to secure my reservation in advance.
+   - **Steps**: Select a car, choose rental dates and additional services, confirm reservation details, select a payment method, receive confirmation.
 
-4. **Demander la Livraison et le Retour de la Voiture**
-   - **En tant qu'utilisateur**, je veux que la voiture soit livrée à mon adresse et récupérée après la période de location.
-   - **Étapes** : Sélectionner une voiture, choisir les options de livraison et de retour, entrer les adresses, confirmer la réservation.
+4. **Requesting Car Delivery and Pickup**
+   - **As a user**, I want the rental car delivered to my address and picked up after the rental period.
+   - **Steps**: Select a car, choose delivery and pickup options, enter delivery and return addresses, confirm the reservation.
 
-5. **Effectuer un Paiement**
-   - **En tant qu'utilisateur**, je veux payer ma location en ligne ou à l'agence.
-   - **Étapes** : Sélectionner une voiture, choisir un mode de paiement, entrer les détails de paiement si en ligne, confirmer le paiement, recevoir un reçu.
+5. **Making a Payment**
+   - **As a user**, I want to pay for my rental either online or at the rental agency.
+   - **Steps**: Select a car, proceed to payment, choose payment method, enter payment details if paying online, confirm payment, receive a receipt.
 
-6. **Gérer les Réservations**
-   - **En tant qu'utilisateur inscrit**, je veux gérer facilement mes réservations via la plateforme.
-   - **Étapes** : Se connecter, accéder au tableau de bord, voir les réservations, modifier ou annuler les réservations, laisser des commentaires.
+6. **Managing Reservations**
+   - **As a registered user**, I want to easily manage my reservations through the platform.
+   - **Steps**: Log in, access the dashboard, view upcoming and past reservations, modify or cancel reservations, leave feedback.
 
-7. **Mettre en Liste la Flotte de Location**
-   - **En tant qu'agence de location**, je veux lister notre flotte sur la plateforme pour attirer plus de clients.
-   - **Étapes** : Se connecter, ajouter des voitures, entrer des informations et des photos, définir la disponibilité, choisir les services supplémentaires, recevoir et confirmer les réservations.
+7. **Listing Rental Fleet**
+   - **As a rental agency**, I want to list our fleet on the platform to attract more customers.
+   - **Steps**: Log in, add cars, enter details and upload photos, set availability, choose additional services, receive and confirm booking requests.
 
-## Fonctionnalités du Site Web
+## Website Features
 
-- **Enregistrement et Authentification des Utilisateurs**
-  - Création de comptes via e-mail, téléphone ou médias sociaux.
+- **User Registration and Authentication**
+  - Account creation via email, phone, or social media.
 
-- **Recherche et Filtrage de Voitures**
-  - Recherche par localisation, type de voiture, dates, prix, et filtrage par caractéristiques.
+- **Car Search and Filtering**
+  - Search by location, car type, dates, price, and filter by features.
 
-- **Listes Détaillées de Voitures**
-  - Profils des voitures avec informations, photos, avis et calendrier de disponibilité.
+- **Detailed Car Listings**
+  - Car profiles with information, photos, reviews, and availability calendar.
 
-- **Réservation et Paiement**
-  - Réservation en ligne avec options supplémentaires, paiements en ligne ou à l'agence, confirmations et rappels.
+- **Booking and Payment**
+  - Online booking with additional options, online or in-agency payment, confirmations and reminders.
 
-- **Services de Livraison et de Retour**
-  - Options pour livraison et retour à une adresse spécifiée, planification des horaires.
+- **Delivery and Return Services**
+  - Options for delivery and pickup at specified addresses, scheduling delivery and return times.
 
-- **Système d'Avis et d'Évaluation**
-  - Avis et évaluations des voitures et agences, filtrage des résultats selon les évaluations.
+- **Review and Rating System**
+  - Leave and view reviews and ratings for cars and agencies, filter search results based on reviews.
 
-- **Support Client**
-  - Support 24/7, FAQ, guides utilisateur, et système de feedback.
+- **Customer Support**
+  - 24/7 support, FAQ, user guides, and feedback system.
 
-- **Sécurité des Données**
-  - Chiffrement des données, audits de sécurité, conformité aux réglementations.
+- **Data Security**
+  - Data encryption, security audits, compliance with regulations.
 
-- **Analyse et Rapports**
-  - Outils de suivi des utilisateurs, rapports sur les performances et satisfaction.
+- **Analytics and Reporting**
+  - Tools for tracking user engagement, performance reports, and satisfaction.
 
-## Exigences Techniques
+## Technical Requirements
 
-### 1. Technologies et Architecture
+### 1. Technologies and Architecture
 
 - **Front-End**
-  - **Framework** : Next.js
-  - **Gestion des états** : Redux ou Context API
-  - **Routing** : React Router
-  - **Communication avec le back-end** : axios
+  - **Framework**: Next.js
+  - **State Management**: Redux or Context API
+  - **Routing**: React Router
+  - **Communication with Back-End**: axios
 
 - **Back-End**
-  - **Environnement de Développement** : Node.js
-  - **Framework** : Express.js
-  - **API RESTful** : Architecture basée sur des services RESTful
-  - **ORM** : Prisma
-  - **Base de Données** : MySQL ou PostgreSQL
+  - **Development Environment**: Node.js
+  - **Framework**: Express.js
+  - **API**: RESTful architecture
+  - **ORM**: Prisma
+  - **Database**: MySQL or PostgreSQL
 
-### 2. Schéma de la Base de Données
+### 2. Database Schema
 
-- **Tables** : Utilisateurs, Voitures, Réservations, Avis, Lieux, Caractéristiques des Voitures.
-- **Relations entre Tables** : Gestion des relations entre utilisateurs, voitures, réservations, avis et lieux.
+- **Tables**: Users, Cars, Bookings, Reviews, Locations, Car Features.
+- **Relationships**: Management of relationships between users, cars, bookings, reviews, and locations.
 
-### 3. Sécurité
+### 3. Security
 
-- **Authentification JWT** : Token pour sécuriser les endpoints.
-- **Cryptage des Données** : bcrypt pour les mots de passe.
-- **Protection** : Contre XSS, CSRF, et injections SQL.
+- **JWT Authentication**: Token-based authentication for securing endpoints.
+- **Data Encryption**: bcrypt for password hashing.
+- **Protection**: Against XSS, CSRF, and SQL injection attacks.
 
-### 4. Déploiement
+### 4. Deployment
 
-- **Hébergement** : Services de cloud computing (Heroku, AWS).
-- **CI/CD** : Pipeline de déploiement continu.
+- **Hosting**: Cloud computing services (Heroku, AWS).
+- **CI/CD**: Continuous integration and deployment pipeline.
 
-### 5. Tests
+### 5. Testing
 
-- **Tests Unitaires** : Jest et supertest.
-- **Tests d'Intégration** : Tests des interactions entre les controllers.
+- **Unit Tests**: Using Jest and supertest.
+- **Integration Tests**: Testing interactions between controllers.
 
 ### 6. Documentation
 
-- **Documentation Technique** : API pour développeurs et administrateurs.
+- **Technical Documentation**: API documentation for developers and administrators.

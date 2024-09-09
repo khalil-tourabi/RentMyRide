@@ -7,9 +7,9 @@ import generateToken from '../utils/jwt';
 const prisma = new PrismaClient();
 
 export const registerUser = async (req: Request, res: Response) => {
-    const { username, email, password, userType } = req.body;
+    const { username, email, password, phone, userType } = req.body;
 
-    if (!username || !email || !password || !userType) {
+    if (!username || !email || !password || !phone || !userType) {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'All fields are required' });
     }
 
@@ -25,7 +25,7 @@ export const registerUser = async (req: Request, res: Response) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await prisma.user.create({
-            data: { username, email, password: hashedPassword, userType }
+            data: { username, email, password: hashedPassword, phone, userType }
         });
 
         const token = generateToken({ user: newUser }, process.env.ACCESS_TOKEN_SECRET);

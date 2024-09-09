@@ -13,6 +13,10 @@ export const registerUser = async (req: Request, res: Response) => {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'All fields are required' });
     }
 
+    if (userType !== 'ADMIN' && userType !== 'CLIENT' && userType !== 'AGENCY') {
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid user type' });
+    }
+
     try {
         const userExists = await prisma.user.findUnique({
             where: { email }

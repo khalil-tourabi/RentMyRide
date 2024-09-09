@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+
 import authRoute from './routes/authRoutes';
+import adminRoute from './routes/adminRoutes';
 
 const app = express();
 
@@ -10,6 +12,7 @@ app.use(helmet());
 app.use(express.json());
 
 app.use('/api', authRoute);
+app.use('/api', adminRoute);
 
 const PORT = process.env.PORT || 3000;
 

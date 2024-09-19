@@ -69,3 +69,34 @@ export const deleteCar = async (req: Request, res: Response) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while deleting the car." });
     }
 }
+
+export const getCar = async (req: Request, res: Response) => {
+    const { carId } = req.body;
+    try {
+        const carExists = await prisma.car.findUnique({
+            where: { id: carId },
+        })
+
+        if (!carExists) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
+        }
+
+        const car = await prisma.car.findUnique({
+            where: { id: carId },
+        })
+        return res.status(StatusCodes.OK).json(car);
+    } catch (error) {
+        console.error("Error getting car:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while getting the car." });
+    }
+}
+
+export const getAllCars = async (req: Request, res: Response) => {
+    try {
+        const cars = await prisma.car.findMany();
+        res.status(200).json(cars);
+    } catch (error) {
+        console.error('Error fetching cars:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}

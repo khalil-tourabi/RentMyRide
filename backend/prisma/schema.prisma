@@ -55,15 +55,15 @@ model User {
 }
 
 /// Model for Locations
-model Location {
-  id        Int    @id @default(autoincrement())
-  cityName  String @unique
-  latitude  Float
-  longitude Float
-  cars      Car[]
+// model Location {
+//   id        Int    @id @default(autoincrement())
+//   cityName  String @unique
+//   latitude  Float
+//   longitude Float
+//   cars      Car[]
 
-  @@index([cityName])
-}
+//   @@index([cityName])
+// }
 
 /// Model for Cars
 model Car {
@@ -77,17 +77,17 @@ model Car {
   dailyPrice    Float
   availableFrom DateTime
   availableTo   DateTime
-  locationId    Int
+  // locationId    Int
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   owner         User         @relation("UserCars", fields: [ownerId], references: [id])
-  location      Location     @relation(fields: [locationId], references: [id])
+  // location      Location     @relation(fields: [locationId], references: [id])
   bookings      Booking[]
   reviews       Review[]
   carFeatures   CarFeature[]
 
   @@index([brand, model, year])
-  @@index([locationId])
+  // @@index([locationId])
 }
 
 /// Model for Features

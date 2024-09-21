@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 
 const prisma = new PrismaClient();
 
-export const addCar = async (req: Request, res: Response) => {
+export const addCar = async (req: Request, res: Response): Promise<Response> => {
     const {
         ownerId,
         brand,
@@ -14,27 +14,32 @@ export const addCar = async (req: Request, res: Response) => {
         description,
         dailyPrice,
         availableFrom,
-        availableTo
+        availableTo,
     } = req.body;
 
-    // Validate required fields
     if (!ownerId || !brand || !model || !year || !dailyPrice || !availableFrom || !availableTo) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Missing required fields." });
     }
 
+    // Check if an image was uploaded
+    const image = req.file; // multer adds the uploaded file to req.file
+    if (!image) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: "Image upload is required." });
+    }
+
     try {
-        // Create a new car entry
         const newCar = await prisma.car.create({
             data: {
-                ownerId,
+                ownerId: parseInt(ownerId),
                 brand,
                 model,
-                year,
-                mileage: mileage || 0, // Default to 0 if mileage is not provided
+                year: parseInt(year),
+                mileage: parseInt(mileage) || 0,
                 description: description || null,
-                dailyPrice,
+                dailyPrice : parseFloat(dailyPrice),
                 availableFrom: new Date(availableFrom),
                 availableTo: new Date(availableTo),
+                image: image.path,
             },
         });
 
@@ -46,6 +51,7 @@ export const addCar = async (req: Request, res: Response) => {
         await prisma.$disconnect();
     }
 };
+
 
 export const deleteCar = async (req: Request, res: Response) => {
     const carId = parseInt(req.params.carId);
@@ -115,6 +121,9 @@ export const updateCar = async (req: Request, res: Response) => {
         availableTo
     } = req.body;
 
+    // Handle the uploaded file if available
+    const imageUrl = req.file ? req.file.path : undefined; // Assuming the file URL is stored in req.file.path
+
     try {
         const carExists = await prisma.car.findUnique({
             where: { id: carId },
@@ -129,12 +138,13 @@ export const updateCar = async (req: Request, res: Response) => {
             data: {
                 brand,
                 model,
-                year,
-                mileage: mileage || 0,
+                year: parseInt(year),
+                mileage: parseInt(mileage) || 0,
                 description: description || null,
-                dailyPrice,
+                dailyPrice : parseFloat(dailyPrice),
                 availableFrom: new Date(availableFrom),
                 availableTo: new Date(availableTo),
+                image: imageUrl || carExists.image,
             },
         });
 
@@ -144,3 +154,4 @@ export const updateCar = async (req: Request, res: Response) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while updating the car." });
     }
 };
+

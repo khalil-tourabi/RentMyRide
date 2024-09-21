@@ -48,7 +48,7 @@ export const addCar = async (req: Request, res: Response) => {
 };
 
 export const deleteCar = async (req: Request, res: Response) => {
-    const { carId } = req.body;
+    const carId = parseInt(req.params.carId);
 
     try {
         const carExists = await prisma.car.findUnique({
@@ -100,3 +100,47 @@ export const getAllCars = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+
+export const updateCar = async (req: Request, res: Response) => {
+    const carId = parseInt(req.params.carId);
+
+    const {
+        brand,
+        model,
+        year,
+        mileage,
+        description,
+        dailyPrice,
+        availableFrom,
+        availableTo
+    } = req.body;
+
+    try {
+        const carExists = await prisma.car.findUnique({
+            where: { id: carId },
+        });
+
+        if (!carExists) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
+        }
+
+        const updatedCar = await prisma.car.update({
+            where: { id: carId },
+            data: {
+                brand,
+                model,
+                year,
+                mileage: mileage || 0,
+                description: description || null,
+                dailyPrice,
+                availableFrom: new Date(availableFrom),
+                availableTo: new Date(availableTo),
+            },
+        });
+
+        return res.status(StatusCodes.OK).json(updatedCar);
+    } catch (error) {
+        console.error("Error updating car:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while updating the car." });
+    }
+};

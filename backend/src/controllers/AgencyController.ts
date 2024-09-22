@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { BookingStatus, PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import { StatusCodes } from "http-status-codes";
 
@@ -155,3 +155,59 @@ export const updateCar = async (req: Request, res: Response) => {
     }
 };
 
+export const confirmBooking = async (req: Request, res: Response) => {
+    const bookingId = parseInt(req.params.bookingId);
+
+    try {
+        const booking = await prisma.booking.update({
+            where: { id: bookingId },
+            data: { status: BookingStatus.CONFIRMED },
+        });
+
+        return res.status(StatusCodes.OK).json(booking);
+    } catch (error) {
+        console.error("Error confirming booking:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while confirming the booking." });
+    }
+};
+
+export const cancelBooking = async (req: Request, res: Response) => {
+    const bookingId = parseInt(req.params.bookingId);
+
+    try {
+        const booking = await prisma.booking.update({
+            where: { id: bookingId },
+            data: { status: BookingStatus.CANCELLED },
+        });
+
+        return res.status(StatusCodes.OK).json(booking);
+    } catch (error) {
+        console.error("Error canceling booking:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while canceling the booking." });
+    }
+};
+
+export const getBookingsByStatus = async (req: Request, res: Response) => {
+    const status = req.params.status as BookingStatus | "ALL";
+
+    if (status !== "ALL" && !Object.values(BookingStatus).includes(status as BookingStatus)) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid status value." });
+    }
+
+    try {
+        const bookings = await prisma.booking.findMany({
+            where: {
+                status: status === "ALL" ? undefined : status as BookingStatus,
+            },
+            include: {
+                car: true,
+                renter: true
+            }
+        });
+
+        return res.status(StatusCodes.OK).json(bookings);
+    } catch (error) {
+        console.error("Error fetching bookings:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching bookings." });
+    }
+};

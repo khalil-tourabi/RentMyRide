@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { BookingStatus, PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import { StatusCodes } from "http-status-codes";
 
@@ -49,5 +49,74 @@ export const updateUserDetails = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error updating user details:", error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while updating the user details." });
+    }
+};
+
+export const BookCar = async (req: Request, res: Response) => {
+    const { carId, renterId, startDate, endDate, paymentMethod, deliveryAddress, returnAddress, deliveryTime, returnTime } = req.body;
+
+    // Validate required fields
+    if (!carId || !renterId || !startDate || !endDate || !paymentMethod) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: "All fields are required." });
+    }
+
+    // Check if the dates are valid
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (start >= end) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: "End date must be after start date." });
+    }
+
+    try {
+        // Check if the car is available for the given dates
+        const existingBookings = await prisma.booking.findMany({
+            where: {
+                carId,
+                status: { not: BookingStatus.CANCELLED },
+                OR: [
+                    {
+                        startDate: { lte: end }, // Existing booking starts before or on the end date
+                        endDate: { gte: start }, // Existing booking ends after or on the start date
+                    },
+                ],
+            },
+        });
+
+        if (existingBookings.length > 0) {
+            return res.status(StatusCodes.CONFLICT).json({ error: "Car is already booked for the selected dates." });
+        }
+
+        // Calculate total amount (you may want to customize this calculation)
+        const car = await prisma.car.findUnique({
+            where: { id: carId },
+        });
+
+        if (!car) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
+        }
+
+        const totalAmount = car.dailyPrice * ((end.getTime() - start.getTime()) / (1000 * 3600 * 24)); // Calculate days
+
+        // Create the booking
+        const booking = await prisma.booking.create({
+            data: {
+                carId,
+                renterId,
+                startDate: start,
+                endDate: end,
+                totalAmount,
+                paymentMethod,
+                deliveryAddress,
+                returnAddress,
+                deliveryTime,
+                returnTime,
+                status: BookingStatus.PENDING,
+            },
+        });
+
+        return res.status(StatusCodes.CREATED).json(booking);
+    } catch (error) {
+        console.error("Error booking car:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while booking the car." });
     }
 };

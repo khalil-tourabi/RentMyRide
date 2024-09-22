@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import authRoute from './routes/authRoutes';
 import adminRoute from './routes/adminRoutes';
 import agencyRoute from './routes/agencyRoutes';
-import userRoute from './routes/userController';
+import userRoute from './routes/userRoute';
 
 const app = express();
 

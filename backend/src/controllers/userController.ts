@@ -120,3 +120,48 @@ export const BookCar = async (req: Request, res: Response) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while booking the car." });
     }
 };
+
+export const addReview = async (req: Request, res: Response) => {
+    const { carId, renterId, rating, comment } = req.body;
+
+    // Validate required fields
+    if (typeof rating !== 'number' || rating < 1 || rating > 5 || !carId || !renterId) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid input. Rating must be between 1 and 5 and other fields are required." });
+    }
+
+    try {
+        // Create a new review
+        const review = await prisma.review.create({
+            data: {
+                carId,
+                renterId,
+                rating,
+                comment,
+            },
+        });
+
+        return res.status(StatusCodes.CREATED).json(review);
+    } catch (error) {
+        console.error("Error adding review:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while adding the review." });
+    }
+};
+
+export const getCarReview = async (req: Request, res: Response) => {
+    const carId = parseInt(req.params.carId);
+
+    try {
+        const reviews = await prisma.review.findMany({
+            where: { carId },
+            include: {
+                renter: true,
+                car: true,
+            }
+        });
+
+        return res.status(StatusCodes.OK).json(reviews);
+    } catch (error) {
+        console.error("Error fetching reviews:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching reviews." });
+    }
+};

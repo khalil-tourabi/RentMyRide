@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { addCar, deleteCar, getCar, getAllCars, updateCar, confirmBooking, cancelBooking, getAllBookings, getBookingsByStatus } from '../controllers/AgencyController';
+import { addCar, deleteCar, getCar, getAllCars, updateCar, confirmBooking, cancelBooking, getBookingsByStatus } from '../controllers/AgencyController';
 import upload from '../middlewares/multer';
 
 const agencyRoute: Router = express.Router();

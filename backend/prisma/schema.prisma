@@ -9,27 +9,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Enum for User Types
 enum UserType {
   ADMIN
   CLIENT
   AGENCY
 }
 
-/// Enum for Booking Status
 enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
 }
 
-/// Enum for Payment Methods
 enum PaymentMethod {
   ONLINE
   AGENCY
 }
 
-/// Enum for Feature Categories
 enum FeatureCategory {
   SAFETY
   COMFORT
@@ -49,12 +45,29 @@ model User {
   cars      Car[]     @relation("UserCars")
   bookings  Booking[] @relation("RenterBookings")
   reviews   Review[]  @relation("UserReviews")
+  profileId Int? // Optional field to link to Profile
+  Profile   Profile?
 
   @@index([email])
   @@index([phone])
 }
 
-/// Model for Cars
+/// Model for Profiles
+model Profile {
+  id        Int    @id @default(autoincrement())
+  userId    Int    @unique // Each profile is linked to one user
+  firstName String
+  lastName  String
+  idNumber  String
+  address   String
+  city      String
+  country   String
+  zipCode   String
+  user      User   @relation(fields: [userId], references: [id])
+
+  @@index([userId]) // Optional: Index for the userId
+}
+
 model Car {
   id            Int          @id @default(autoincrement())
   ownerId       Int
@@ -66,7 +79,7 @@ model Car {
   dailyPrice    Float
   availableFrom DateTime
   availableTo   DateTime
-  image         String?      // Added image field
+  image         String? // Added image field
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   owner         User         @relation("UserCars", fields: [ownerId], references: [id])
@@ -77,7 +90,6 @@ model Car {
   @@index([brand, model, year])
 }
 
-/// Model for Features
 model Feature {
   id                     Int                   @id @default(autoincrement())
   name                   String                @unique
@@ -89,7 +101,6 @@ model Feature {
   @@index([category])
 }
 
-/// Model for CarFeatures (Join Table)
 model CarFeature {
   id        Int     @id @default(autoincrement())
   carId     Int
@@ -101,7 +112,6 @@ model CarFeature {
   @@index([featureId])
 }
 
-/// Model for Bookings
 model Booking {
   id              Int           @id @default(autoincrement())
   carId           Int
@@ -124,12 +134,11 @@ model Booking {
   @@index([status])
 }
 
-/// Model for Reviews
 model Review {
   id         Int      @id @default(autoincrement())
   carId      Int
   renterId   Int
-  rating     Int      @map("note") // Rating from 1 to 5
+  rating     Int      @map("note")
   comment    String?
   reviewDate DateTime @default(now())
   car        Car      @relation(fields: [carId], references: [id])
@@ -139,7 +148,6 @@ model Review {
   @@index([renterId])
 }
 
-/// Optional: Model for Feature Categories (if you prefer a separate table)
 model FeatureCategoryModel {
   id       Int             @id @default(autoincrement())
   name     FeatureCategory @unique

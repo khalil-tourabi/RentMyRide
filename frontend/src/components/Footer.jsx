@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+import logo from "../assets/logo-white.png";
+
 const Footer = () => {
   return (
     <>
@@ -5,11 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="lg:flex lg:items-center">
             <a href="javascript:void(0)">
-              <img
-                src="https://readymadeui.com/readymadeui-light.svg"
-                alt="logo"
-                className="w-52"
-              />
+              <img src={logo} alt="logo" className="w-52" />
             </a>
           </div>
           <div className="lg:flex lg:items-center">
@@ -64,28 +63,13 @@ const Footer = () => {
             </h4>
             <ul className="space-y-4">
               <li>
-                <a
+                <Link
+                  to={"/contactus"}
                   href="javascript:void(0)"
                   className="text-gray-300 hover:text-white text-sm"
                 >
-                  Email
-                </a>
-              </li>
-              <li>
-                <a
-                  href="javascript:void(0)"
-                  className="text-gray-300 hover:text-white text-sm"
-                >
-                  Phone
-                </a>
-              </li>
-              <li>
-                <a
-                  href="javascript:void(0)"
-                  className="text-gray-300 hover:text-white text-sm"
-                >
-                  Address
-                </a>
+                  Contact Us
+                </Link>
               </li>
             </ul>
           </div>
@@ -95,34 +79,37 @@ const Footer = () => {
             </h4>
             <ul className="space-y-4">
               <li>
-                <a
+                <Link
+                  to={"/aboutus"}
                   href="javascript:void(0)"
                   className="text-gray-300 hover:text-white text-sm"
                 >
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
+                  to={"/termsandconditions"}
                   href="javascript:void(0)"
                   className="text-gray-300 hover:text-white text-sm"
                 >
                   Terms &amp; Conditions
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
+                  to={"/privacy"}
                   href="javascript:void(0)"
                   className="text-gray-300 hover:text-white text-sm"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
         </div>
         <p className="text-gray-300 text-sm mt-10">
-          © ReadymadeUI. All rights reserved.
+          © RentMyRide. All rights reserved.
         </p>
       </footer>
     </>

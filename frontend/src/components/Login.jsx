@@ -1,32 +1,47 @@
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import logo from '../assets/logo-no-background.png';
 
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
 const Login = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = (data) => {
+    console.log("Form data:", data);
+    // Handle form submission here (e.g., API call for login)
+  };
+
   return (
     <>
       <div className="bg-gray-50 font-[sans-serif]">
         <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4">
           <div className="max-w-md w-full">
             <a href="javascript:void(0)">
-              <img
-                src= {logo}
-                alt="logo"
-                className="w-40 mb-8 mx-auto block"
-              />
+              <img src={logo} alt="logo" className="w-40 mb-8 mx-auto block" />
             </a>
             <div className="p-8 rounded-2xl bg-white shadow">
               <h2 className="text-gray-800 text-center text-2xl font-bold">
                 Sign in
               </h2>
-              <form className="mt-8 space-y-4">
+              <form className="mt-8 space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 <div>
-                  <label className="text-gray-800 text-sm mb-2 block">
-                    Email
-                  </label>
+                  <label className="text-gray-800 text-sm mb-2 block">Email</label>
                   <div className="relative flex items-center">
                     <input
                       name="email"
                       type="email"
-                      required=""
+                      {...register("email")}
                       className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
                       placeholder="Enter Email"
                     />
@@ -44,6 +59,9 @@ const Login = () => {
                       />
                     </svg>
                   </div>
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-gray-800 text-sm mb-2 block">
@@ -53,7 +71,7 @@ const Login = () => {
                     <input
                       name="password"
                       type="password"
-                      required=""
+                      {...register("password")}
                       className="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
                       placeholder="Enter password"
                     />
@@ -70,11 +88,16 @@ const Login = () => {
                       />
                     </svg>
                   </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="text-sm">
                     <a
-                      href="jajvascript:void(0);"
+                      href="javascript:void(0);"
                       className="text-blue-600 hover:underline font-semibold"
                     >
                       Forgot your password?
@@ -83,14 +106,14 @@ const Login = () => {
                 </div>
                 <div className="!mt-8">
                   <button
-                    type="button"
+                    type="submit"
                     className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
                   >
                     Sign in
                   </button>
                 </div>
                 <p className="text-gray-800 text-sm !mt-8 text-center">
-                  Don`&apos;`t have an account?{" "}
+                  Don`t have an account?{" "}
                   <a
                     href="javascript:void(0);"
                     className="text-blue-600 hover:underline ml-1 whitespace-nowrap font-semibold"

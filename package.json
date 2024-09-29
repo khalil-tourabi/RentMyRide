@@ -1,0 +1,18 @@
+{
+  "name": "myfinance",
+  "version": "1.0.0",
+  "description": "smartFinance est une startup innovante spécialisée dans les solutions financières, à la recherche de deux développeurs talentueux pour créer une application destinée à aider les utilisateurs à suivre leurs dépenses et leurs revenus. Cette solution vise à offrir une vue d’ensemble claire de la gestion financière personnelle selon des catégories prédéfinies, afin d’optimiser les décisions financières.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "start:frontend": "cd Frontend && npm run dev",
+    "start:backend": "cd Backend && npm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

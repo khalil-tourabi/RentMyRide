@@ -1,7 +1,9 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
 import logo from '../assets/logo-no-background.png';
+import { useState } from 'react';
 
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters long"),
@@ -24,9 +26,27 @@ const Register = () => {
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data) => {
-    console.log("Registration data:", data);
-    // Handle registration logic here (e.g., API call)
+  const [apiError, setApiError] = useState(null);
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/register', {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        userType: data.userType,
+      });
+
+      // Handle successful registration
+      console.log('User registered:', response.data);
+      // Optionally, redirect to another page after success
+      window.location.href = '/login';
+
+    } catch (error) {
+      console.error('Error registering user:', error.response?.data?.message || error.message);
+      setApiError(error.response?.data?.message || 'An error occurred');
+    }
   };
 
   return (
@@ -124,6 +144,9 @@ const Register = () => {
               )}
             </div>
           </div>
+          {apiError && (
+            <p className="text-red-500 text-center text-sm mt-4">{apiError}</p>
+          )}
           <div className="!mt-12">
             <button
               type="submit"

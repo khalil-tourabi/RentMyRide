@@ -8,13 +8,15 @@ import AboutUs from "./components/AboutUs";
 import ContactUs from "./components/ContactUs";
 import TermsAndConditions from "./components/TermsAndConditions";
 import Privacy from "./components/Privacy";
-import ClientProfile from "./components/ClientProfile";
+import ClientProfile from "./components/Client/ClientProfile";
 import AgencyProfile from "./components/AgencyProfile";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import ManageBookings from "./components/Admin/ManageBookings";
 import ManageCars from "./components/Admin/ManageCars";
 import Settings from "./components/Admin/Settings";
-import ManageUsers from './components/Admin/ManageUsers';
+import ManageUsers from "./components/Admin/ManageUsers";
+import BookingHistory from "./components/Client/BookingHistory";
+import Reviews from "./components/Client/ReviewsHistory";
 
 function App() {
   return (
@@ -34,6 +36,8 @@ function App() {
       <Route path="/managecars" element={<ManageCars />} />
       <Route path="/manageusers" element={<ManageUsers />} />
       <Route path="/adminsettings" element={<Settings />} />
+      <Route path="/clientbookinghistory" element={<BookingHistory />} />
+      <Route path="/clientreviewhistory" element={<Reviews />} />
     </Routes>
   );
 }

@@ -151,9 +151,9 @@ export const getUserProfile = async (req: Request, res: Response) => {
             }
         });
 
-        if (!profile) {
-            return res.status(StatusCodes.NOT_FOUND).json({ error: "Profile not found" });
-        }
+        // if (!profile) {
+        //     return res.status(StatusCodes.NOT_FOUND).json({ error: "Profile not found" });
+        // }
 
         // Combine the user and profile data in the response
         return res.status(StatusCodes.OK).json({

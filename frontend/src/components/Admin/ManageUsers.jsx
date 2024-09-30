@@ -1,5 +1,5 @@
 
-const UserManagement = () => {
+const AdminUserManagement = () => {
   return (
     <div className="p-6 bg-gray-100">
       <h1 className="text-3xl font-semibold mb-4">User Management</h1>
@@ -30,4 +30,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default AdminUserManagement;

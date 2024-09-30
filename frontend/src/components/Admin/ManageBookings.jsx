@@ -1,5 +1,4 @@
-
-const ManageBookings = () => {
+const AdminBookingManagement = () => {
   return (
     <div className="p-6 bg-gray-100">
       <h1 className="text-3xl font-semibold mb-4">Manage Bookings</h1>
@@ -24,7 +23,9 @@ const ManageBookings = () => {
             <td className="py-2 px-4 text-green-600">Confirmed</td>
             <td className="py-2 px-4">
               <button className="text-blue-600 hover:underline">View</button>
-              <button className="text-red-600 hover:underline ml-2">Cancel</button>
+              <button className="text-red-600 hover:underline ml-2">
+                Cancel
+              </button>
             </td>
           </tr>
           {/* More rows as needed */}
@@ -34,4 +35,4 @@ const ManageBookings = () => {
   );
 };
 
-export default ManageBookings;
+export default AdminBookingManagement;

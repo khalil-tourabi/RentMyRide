@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import logo from '../assets/logo-no-background.png';
+import logo from '../../assets/logo-no-background.png';
 
 // Zod schema for form validation
 const loginSchema = z.object({

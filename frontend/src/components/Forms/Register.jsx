@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import logo from '../assets/logo-no-background.png';
+import logo from '../../assets/logo-no-background.png';
 import { useState } from 'react';
 
 const registerSchema = z.object({

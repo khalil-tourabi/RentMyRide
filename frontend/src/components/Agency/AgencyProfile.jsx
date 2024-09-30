@@ -48,7 +48,7 @@ const ClientProfile = () => {
         });
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        // Set default empty values if there's an error
+        // You can set profileData to empty strings or default values if error occurs
         setProfileData({
           username: "",
           email: "",
@@ -198,16 +198,6 @@ const ClientProfile = () => {
             </button>
           )}
         </div>
-      </div>
-
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-        <h3 className="text-xl font-semibold mb-4">Booking History</h3>
-        <p>No booking history available.</p>
-      </div>
-
-      <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h3 className="text-xl font-semibold mb-4">Your Reviews</h3>
-        <p>No reviews available.</p>
       </div>
     </div>
   );

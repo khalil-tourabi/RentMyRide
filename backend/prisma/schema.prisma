@@ -26,13 +26,6 @@ enum PaymentMethod {
   AGENCY
 }
 
-enum FeatureCategory {
-  SAFETY
-  COMFORT
-  TECHNOLOGY
-  OTHER
-}
-
 /// Model for Users
 model User {
   id        Int       @id @default(autoincrement())
@@ -47,6 +40,8 @@ model User {
   reviews   Review[]  @relation("UserReviews")
   profileId Int? // Optional field to link to Profile
   Profile   Profile?
+  Agency    Agency?   @relation(fields: [agencyId], references: [id])
+  agencyId  Int? // Optional field to link to Agency if the user is an agency
 
   @@index([email])
   @@index([phone])
@@ -68,9 +63,27 @@ model Profile {
   @@index([userId]) // Optional: Index for the userId
 }
 
+model Agency {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  address   String
+  phone     String?
+  email     String?   @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  cars      Car[]     @relation("AgencyCars") // Relation to cars owned by the agency
+  bookings  Booking[] // Relation to bookings for agency-owned cars
+  userId    Int? // Link to User table
+  User      User[]
+
+  @@index([name])
+  @@index([email])
+}
+
 model Car {
   id            Int          @id @default(autoincrement())
-  ownerId       Int
+  ownerId       Int // Owner can be an individual user or agency
+  agencyId      Int? // Agency owning the car (optional)
   brand         String
   model         String
   year          Int
@@ -79,43 +92,33 @@ model Car {
   dailyPrice    Float
   availableFrom DateTime
   availableTo   DateTime
-  image         String? // Added image field
+  image         String? // Image field
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   owner         User         @relation("UserCars", fields: [ownerId], references: [id])
+  agency        Agency?      @relation("AgencyCars", fields: [agencyId], references: [id]) // Link to Agency
   bookings      Booking[]
   reviews       Review[]
-  carFeatures   CarFeature[]
+  features      CarFeature[] // Direct relation to car features
 
   @@index([brand, model, year])
 }
 
-model Feature {
-  id                     Int                   @id @default(autoincrement())
-  name                   String                @unique
-  category               FeatureCategory
-  carFeatures            CarFeature[]
-  FeatureCategoryModel   FeatureCategoryModel? @relation(fields: [featureCategoryModelId], references: [id])
-  featureCategoryModelId Int?
-
-  @@index([category])
-}
-
 model CarFeature {
-  id        Int     @id @default(autoincrement())
-  carId     Int
-  featureId Int
-  car       Car     @relation(fields: [carId], references: [id])
-  feature   Feature @relation(fields: [featureId], references: [id])
+  id    Int    @id @default(autoincrement())
+  carId Int
+  name  String // Feature name (e.g., "GPS", "Air Conditioning")
+  car   Car    @relation(fields: [carId], references: [id])
 
-  @@unique([carId, featureId])
-  @@index([featureId])
+  @@unique([carId, name]) // Ensure unique features per car
+  @@index([carId])
 }
 
 model Booking {
   id              Int           @id @default(autoincrement())
   carId           Int
   renterId        Int
+  agencyId        Int? // Agency booking for agency-owned cars
   startDate       DateTime
   endDate         DateTime
   totalAmount     Float
@@ -128,6 +131,7 @@ model Booking {
   returnTime      DateTime?
   car             Car           @relation(fields: [carId], references: [id])
   renter          User          @relation("RenterBookings", fields: [renterId], references: [id])
+  agency          Agency?       @relation(fields: [agencyId], references: [id]) // Relation to agency if applicable
 
   @@index([carId])
   @@index([renterId])
@@ -146,12 +150,4 @@ model Review {
 
   @@index([carId])
   @@index([renterId])
-}
-
-model FeatureCategoryModel {
-  id       Int             @id @default(autoincrement())
-  name     FeatureCategory @unique
-  features Feature[]
-
-  @@index([name])
 }

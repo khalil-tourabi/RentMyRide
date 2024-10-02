@@ -211,3 +211,98 @@ export const getBookingsByStatus = async (req: Request, res: Response) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching bookings." });
     }
 };
+
+export const getUserProfile = async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId);
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: { Profile: true },
+        });
+
+        if (!user) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: "User not found." });
+        }
+
+        const Agency = await prisma.agency.findFirst({
+            where: { userId },
+        });
+
+        res.status(StatusCodes.OK).json({ user, profile: user.Profile, agency: Agency });
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching the user profile." });
+    }
+};
+
+export const updateUserProfile = async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId);
+    const { profileData, agencyData } = req.body;
+
+    try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: "User not found." });
+        }
+
+        // Check if the profile exists
+        let updatedProfile;
+        const existingProfile = await prisma.profile.findUnique({ where: { userId } });
+
+        if (existingProfile) {
+            updatedProfile = await prisma.profile.update({
+                where: { userId: userId },
+                data: {
+                    firstName: profileData.firstName,
+                    lastName: profileData.lastName,
+                    idNumber: profileData.idNumber,
+                    address: profileData.address,
+                    city: profileData.city,
+                    country: profileData.country,
+                    zipCode: profileData.zipCode,
+                },
+            });
+        } else {
+            // Create a new profile if it doesn't exist
+            updatedProfile = await prisma.profile.create({
+                data: {
+                    userId: userId,
+                    firstName: profileData.firstName,
+                    lastName: profileData.lastName,
+                    idNumber: profileData.idNumber,
+                    address: profileData.address,
+                    city: profileData.city,
+                    country: profileData.country,
+                    zipCode: profileData.zipCode,
+                },
+            });
+        }
+
+        // Handle agency data
+        if (agencyData.name) {
+            const existingAgency = await prisma.agency.findUnique({
+                where: { email: agencyData.email },
+            });
+
+            if (existingAgency) {
+                // Update the existing agency
+                await prisma.agency.update({
+                    where: { id: existingAgency.id },
+                    data: agencyData,
+                });
+            } else {
+                // Create a new agency
+                await prisma.agency.create({
+                    data: { ...agencyData, userId: userId },
+                });
+            }
+        }
+
+        res.status(StatusCodes.OK).json({ profile: updatedProfile });
+    } catch (error) {
+        console.error("Error updating user profile:", error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while updating the user profile." });
+    }
+};
+

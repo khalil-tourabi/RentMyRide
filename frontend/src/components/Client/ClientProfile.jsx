@@ -199,16 +199,6 @@ const ClientProfile = () => {
           )}
         </div>
       </div>
-
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-        <h3 className="text-xl font-semibold mb-4">Booking History</h3>
-        <p>No booking history available.</p>
-      </div>
-
-      <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h3 className="text-xl font-semibold mb-4">Your Reviews</h3>
-        <p>No reviews available.</p>
-      </div>
     </div>
   );
 };

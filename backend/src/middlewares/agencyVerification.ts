@@ -14,7 +14,7 @@ interface CustomRequest extends Request {
 const isAgency = (req: CustomRequest, res: Response, next: NextFunction) => {
     const user = req.body.user;
     console.log(user);
-    if (!user || user.userType !== UserType.AGENCY) {
+    if (!user || user.userType === UserType.AGENCY) {
         return res.status(403).json({ message: "Not authorized as an Agency" });
     }
     next();

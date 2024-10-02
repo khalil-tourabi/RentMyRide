@@ -15,6 +15,13 @@ const ClientProfile = () => {
     zipCode: "",
   });
 
+  const [agencyData, setAgencyData] = useState({
+    name: "",
+    address: "",
+    phone: "",
+    email: "",
+  });
+
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
@@ -24,7 +31,7 @@ const ClientProfile = () => {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          `http://localhost:3000/api/getuserprofile/${userId}`,
+          `http://localhost:3000/api/getagencyprofile/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -32,7 +39,8 @@ const ClientProfile = () => {
           }
         );
 
-        const { user, profile } = response.data;
+        const { user, profile, agency } = response.data;
+        console.log(agency);
 
         setProfileData({
           username: user?.username || "",
@@ -46,9 +54,19 @@ const ClientProfile = () => {
           country: profile?.country || "",
           zipCode: profile?.zipCode || "",
         });
+
+        // Set agency data if user is part of an agency
+        if (agency) {
+          setAgencyData({
+            name: agency?.name || "",
+            address: agency?.address || "",
+            phone: agency?.phone || "",
+            email: agency?.email || "",
+          });
+        }
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        // You can set profileData to empty strings or default values if error occurs
+        // You can reset profileData and agencyData to default values if error occurs
         setProfileData({
           username: "",
           email: "",
@@ -60,6 +78,13 @@ const ClientProfile = () => {
           city: "",
           country: "",
           zipCode: "",
+        });
+
+        setAgencyData({
+          name: "",
+          address: "",
+          phone: "",
+          email: "",
         });
       }
     };
@@ -74,13 +99,22 @@ const ClientProfile = () => {
     });
   };
 
+  const handleAgencyInputChange = (e) => {
+    setAgencyData({
+      ...agencyData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   const handleSaveChanges = async () => {
     try {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
+
+      // Update profile and agency data in one request
       await axios.put(
-        `http://localhost:3000/api/updateuserdetails/${userId}`,
-        profileData,
+        `http://localhost:3000/api/updateagencyprofile/${userId}`,
+        { profileData, agencyData },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -97,7 +131,7 @@ const ClientProfile = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Client Profile</h2>
+        <h2 className="text-2xl font-semibold text-gray-800">Agency Profile</h2>
         <button
           className="bg-blue-500 text-white py-2 px-4 rounded"
           onClick={() => setIsEditing(!isEditing)}
@@ -106,6 +140,7 @@ const ClientProfile = () => {
         </button>
       </div>
 
+      {/* Personal Information Section */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
         <h3 className="text-xl font-semibold mb-4">Personal Information</h3>
         <div className="grid grid-cols-2 gap-4">
@@ -189,16 +224,57 @@ const ClientProfile = () => {
             onChange={handleInputChange}
             disabled={!isEditing}
           />
-          {isEditing && (
-            <button
-              className="col-span-2 bg-green-500 text-white py-2 px-4 rounded mt-4"
-              onClick={handleSaveChanges}
-            >
-              Save Changes
-            </button>
-          )}
         </div>
       </div>
+
+      {/* Agency Information Section */}
+      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+        <h3 className="text-xl font-semibold mb-4">Agency Information</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Agency Name"
+            name="name"
+            value={agencyData.name || ""}
+            onChange={handleAgencyInputChange}
+            disabled={!isEditing}
+          />
+          <input
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Agency Address"
+            name="address"
+            value={agencyData.address || ""}
+            onChange={handleAgencyInputChange}
+            disabled={!isEditing}
+          />
+          <input
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Agency Phone"
+            name="phone"
+            value={agencyData.phone || ""}
+            onChange={handleAgencyInputChange}
+            disabled={!isEditing}
+          />
+          <input
+            className="p-2 border border-gray-300 rounded"
+            placeholder="Agency Email"
+            name="email"
+            value={agencyData.email || ""}
+            onChange={handleAgencyInputChange}
+            disabled={!isEditing}
+          />
+        </div>
+      </div>
+
+      {/* Save Button */}
+      {isEditing && (
+        <button
+          className="bg-green-500 text-white py-2 px-4 rounded mt-4"
+          onClick={handleSaveChanges}
+        >
+          Save Changes
+        </button>
+      )}
     </div>
   );
 };

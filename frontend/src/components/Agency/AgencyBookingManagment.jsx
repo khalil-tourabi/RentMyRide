@@ -33,7 +33,13 @@ const ManageBookings = () => {
   };
 
   const confirmCancelBooking = () => {
-    setBookings(bookings.filter((booking) => booking.id !== currentBooking.id));
+    setBookings((prevBookings) =>
+      prevBookings.map((booking) =>
+        booking.id === currentBooking.id
+          ? { ...booking, status: "Canceled" }
+          : booking
+      )
+    );
     setIsCancelModalOpen(false);
     setIsViewModalOpen(false);
     setCurrentBooking(null);
@@ -66,7 +72,13 @@ const ManageBookings = () => {
               <td className="py-2 px-4">{booking.user}</td>
               <td className="py-2 px-4">{booking.startDate}</td>
               <td className="py-2 px-4">{booking.endDate}</td>
-              <td className="py-2 px-4 text-green-600">{booking.status}</td>
+              <td className="py-2 px-4 text-green-600">
+                {booking.status === "Canceled" ? (
+                  <span className="text-red-600">{booking.status}</span>
+                ) : (
+                  booking.status
+                )}
+              </td>
               <td className="py-2 px-4">
                 <button
                   className="text-blue-600 hover:underline"
@@ -77,6 +89,7 @@ const ManageBookings = () => {
                 <button
                   className="text-red-600 hover:underline ml-2"
                   onClick={() => handleCancel(booking)}
+                  disabled={booking.status === "Canceled"}
                 >
                   Cancel
                 </button>

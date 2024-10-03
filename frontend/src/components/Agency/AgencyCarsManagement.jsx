@@ -127,7 +127,7 @@ const ManageCars = () => {
       availableTo: car.availableTo,
       description: car.description,
     });
-    setFeatures(car.features ? car.features.map(feature => feature.name) : []); // Check for features
+    setFeatures(Array.isArray(car.features) ? car.features.map(feature => feature.name) : []); // Check for features
     setIsEditing(true);
     setIsModalOpen(true);
   };
@@ -304,7 +304,7 @@ const ManageCars = () => {
                   </button>
                 </div>
                 <ul className="list-disc pl-5 mt-2">
-                  {features.map((feature, index) => (
+                  {Array.isArray(features) ? features.map((feature, index) => (
                     <li key={index} className="flex justify-between">
                       <span>{feature}</span>
                       <button
@@ -316,7 +316,7 @@ const ManageCars = () => {
                         Remove
                       </button>
                     </li>
-                  ))}
+                  )) : null}
                 </ul>
               </div>
               <input

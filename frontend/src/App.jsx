@@ -25,7 +25,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Homepage />} />
-      <Route path="/car" element={<CarPage />} />
+      <Route path="/car/:carId" element={<CarPage />} />
 
       {/* Static page: */}
       <Route path="/aboutus" element={<AboutUs />} />

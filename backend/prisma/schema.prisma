@@ -97,8 +97,8 @@ model Car {
   updatedAt     DateTime     @updatedAt
   owner         User         @relation("UserCars", fields: [ownerId], references: [id])
   agency        Agency?      @relation("AgencyCars", fields: [agencyId], references: [id]) // Link to Agency
-  bookings      Booking[]
-  reviews       Review[]
+  bookings      Booking[]    @relation("CarBookings")
+  reviews       Review[]     @relation("CarReviews")
   features      CarFeature[] // Direct relation to car features
 
   @@index([brand, model, year])
@@ -129,7 +129,7 @@ model Booking {
   returnAddress   String?
   deliveryTime    DateTime?
   returnTime      DateTime?
-  car             Car           @relation(fields: [carId], references: [id])
+  car             Car           @relation("CarBookings", fields: [carId], references: [id], onDelete: Cascade)
   renter          User          @relation("RenterBookings", fields: [renterId], references: [id])
   agency          Agency?       @relation(fields: [agencyId], references: [id]) // Relation to agency if applicable
 
@@ -145,7 +145,7 @@ model Review {
   rating     Int      @map("note")
   comment    String?
   reviewDate DateTime @default(now())
-  car        Car      @relation(fields: [carId], references: [id])
+  car        Car      @relation("CarReviews", fields: [carId], references: [id], onDelete: Cascade)
   renter     User     @relation("UserReviews", fields: [renterId], references: [id])
 
   @@index([carId])

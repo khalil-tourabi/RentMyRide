@@ -1,55 +1,54 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-const carSchema = z.object({
-  brand: z.string().nonempty("Brand is required"),
-  model: z.string().nonempty("Model is required"),
-  year: z.number().min(1886, "Year must be valid").max(new Date().getFullYear(), "Year must not be in the future"),
-  mileage: z.number().min(0, "Mileage must be at least 0"),
-  dailyPrice: z.number().min(0, "Price must be at least 0"),
-  availableFrom: z.string().nonempty("Available From is required"),
-  availableTo: z.string().nonempty("Available To is required"),
-  description: z.string().optional(),
-  features: z.array(z.string()).optional(),
-  image: z.instanceof(File).optional(),
-});
-
-const initialCars = [
-  { id: 1, brand: "Toyota", model: "Camry", year: 2020, mileage: 15000, dailyPrice: 50, availableFrom: "2023-01-01", availableTo: "2023-12-31", description: "", features: [], image: null },
-  // Add more sample cars as needed
-];
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const ManageCars = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [cars, setCars] = useState(initialCars);
+  const [cars, setCars] = useState([]);
   const [currentCar, setCurrentCar] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [features, setFeatures] = useState([]);
   const [featureInput, setFeatureInput] = useState("");
+  const [image, setImage] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [carToDelete, setCarToDelete] = useState(null);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(carSchema),
-    defaultValues: {
-      brand: "",
-      model: "",
-      year: "",
-      mileage: "",
-      dailyPrice: "",
-      availableFrom: "",
-      availableTo: "",
-      description: "",
-      image: null,
-    },
+  const [formData, setFormData] = useState({
+    brand: "",
+    model: "",
+    year: "",
+    mileage: "",
+    dailyPrice: "",
+    availableFrom: "",
+    availableTo: "",
+    description: "",
   });
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        const token = localStorage.getItem("token");
+
+        const response = await axios.get(
+          `http://localhost:3000/api/getagencycars/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setCars(response.data);
+      } catch (error) {
+        console.error("Error fetching cars:", error);
+      }
+    };
+
+    fetchCars();
+  }, []);
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleAddFeature = () => {
     if (featureInput) {
@@ -61,41 +60,115 @@ const ManageCars = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setValue("image", file);
+      setImage(file);
     }
   };
 
-  const onSubmit = (data) => {
-    const newCarData = { ...data, features };
-    if (currentCar) {
-      setCars(cars.map(car => car.id === currentCar.id ? { ...newCarData, id: currentCar.id } : car));
-    } else {
-      setCars([...cars, { ...newCarData, id: Date.now() }]);
+  const handleSaveChanges = async () => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      data.append(key, value);
+    });
+    features.forEach((feature) => {
+      data.append("features", feature);
+    });
+    if (image) {
+      data.append("image", image);
     }
-    reset();
-    setIsModalOpen(false);
-    setIsEditModalOpen(false);
-    setFeatures([]);
-    setCurrentCar(null);
+
+    data.append("ownerId", userId);
+
+    try {
+      if (isEditing) {
+        await axios.put(
+          `http://localhost:3000/api/updatecar/${currentCar.id}`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setCars(
+          cars.map((car) =>
+            car.id === currentCar.id ? { ...car, ...formData } : car
+          )
+        );
+      } else {
+        const response = await axios.post(
+          "http://localhost:3000/api/addcar",
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setCars([...cars, response.data]);
+      }
+      resetForm();
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
   };
 
   const handleEdit = (car) => {
     setCurrentCar(car);
-    setValue("brand", car.brand);
-    setValue("model", car.model);
-    setValue("year", car.year);
-    setValue("mileage", car.mileage);
-    setValue("dailyPrice", car.dailyPrice);
-    setValue("availableFrom", car.availableFrom);
-    setValue("availableTo", car.availableTo);
-    setValue("description", car.description);
-    setFeatures(car.features || []);
-    setIsEditModalOpen(true);
+    setFormData({
+      brand: car.brand,
+      model: car.model,
+      year: car.year,
+      mileage: car.mileage,
+      dailyPrice: car.dailyPrice,
+      availableFrom: car.availableFrom,
+      availableTo: car.availableTo,
+      description: car.description,
+    });
+    setFeatures(car.features ? car.features.map(feature => feature.name) : []); // Check for features
+    setIsEditing(true);
+    setIsModalOpen(true);
   };
 
-  const handleDeleteConfirm = (carId) => {
-    setCars(cars.filter(car => car.id !== carId));
-    setIsDeleteModalOpen(false);
+  const handleDelete = (carId) => {
+    setCarToDelete(carId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      await axios.delete(`http://localhost:3000/api/deletecar/${carToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCars(cars.filter((car) => car.id !== carToDelete));
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting car:", error);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      brand: "",
+      model: "",
+      year: "",
+      mileage: "",
+      dailyPrice: "",
+      availableFrom: "",
+      availableTo: "",
+      description: "",
+    });
+    setFeatures([]);
+    setImage(null);
+    setCurrentCar(null);
+    setIsEditing(false);
+    setIsModalOpen(false);
   };
 
   return (
@@ -132,10 +205,7 @@ const ManageCars = () => {
                 </button>
                 <button
                   className="text-red-600 hover:underline ml-2"
-                  onClick={() => {
-                    setCurrentCar(car);
-                    setIsDeleteModalOpen(true);
-                  }}
+                  onClick={() => handleDelete(car.id)}
                 >
                   Delete
                 </button>
@@ -145,124 +215,142 @@ const ManageCars = () => {
         </tbody>
       </table>
 
-      {/* Add/Edit Modal */}
-      {(isModalOpen || isEditModalOpen) && (
+      {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-1/3">
-            <h2 className="text-2xl font-semibold mb-4">{currentCar ? "Edit Car" : "Add New Car"}</h2>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="mb-4">
-                <label className="block mb-2">Brand</label>
-                <input
-                  type="text"
-                  {...register("brand")}
-                  className={`border rounded p-2 w-full ${errors.brand ? "border-red-500" : ""}`}
-                />
-                {errors.brand && <p className="text-red-500">{errors.brand.message}</p>}
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Model</label>
-                <input
-                  type="text"
-                  {...register("model")}
-                  className={`border rounded p-2 w-full ${errors.model ? "border-red-500" : ""}`}
-                />
-                {errors.model && <p className="text-red-500">{errors.model.message}</p>}
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Year</label>
-                <input
-                  type="number"
-                  {...register("year")}
-                  className={`border rounded p-2 w-full ${errors.year ? "border-red-500" : ""}`}
-                />
-                {errors.year && <p className="text-red-500">{errors.year.message}</p>}
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Mileage</label>
-                <input
-                  type="number"
-                  {...register("mileage")}
-                  className={`border rounded p-2 w-full ${errors.mileage ? "border-red-500" : ""}`}
-                />
-                {errors.mileage && <p className="text-red-500">{errors.mileage.message}</p>}
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Daily Price</label>
-                <input
-                  type="number"
-                  {...register("dailyPrice")}
-                  className={`border rounded p-2 w-full ${errors.dailyPrice ? "border-red-500" : ""}`}
-                />
-                {errors.dailyPrice && <p className="text-red-500">{errors.dailyPrice.message}</p>}
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Available From</label>
-                <input
-                  type="date"
-                  {...register("availableFrom")}
-                  className={`border rounded p-2 w-full ${errors.availableFrom ? "border-red-500" : ""}`}
-                />
-                {errors.availableFrom && <p className="text-red-500">{errors.availableFrom.message}</p>}
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Available To</label>
-                <input
-                  type="date"
-                  {...register("availableTo")}
-                  className={`border rounded p-2 w-full ${errors.availableTo ? "border-red-500" : ""}`}
-                />
-                {errors.availableTo && <p className="text-red-500">{errors.availableTo.message}</p>}
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Description</label>
-                <textarea
-                  {...register("description")}
-                  className="border rounded p-2 w-full"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-2">Upload Image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </div>
+            <h2 className="text-2xl font-semibold mb-4">
+              {isEditing ? "Edit Car" : "Add New Car"}
+            </h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveChanges();
+              }}
+            >
+              <input
+                className="border rounded p-2 w-full mb-2"
+                placeholder="Brand"
+                name="brand"
+                value={formData.brand}
+                onChange={handleInputChange}
+              />
+              <input
+                className="border rounded p-2 w-full mb-2"
+                placeholder="Model"
+                name="model"
+                value={formData.model}
+                onChange={handleInputChange}
+              />
+              <input
+                type="number"
+                className="border rounded p-2 w-full mb-2"
+                placeholder="Year"
+                name="year"
+                value={formData.year}
+                onChange={handleInputChange}
+              />
+              <input
+                type="number"
+                className="border rounded p-2 w-full mb-2"
+                placeholder="Mileage"
+                name="mileage"
+                value={formData.mileage}
+                onChange={handleInputChange}
+              />
+              <input
+                type="number"
+                className="border rounded p-2 w-full mb-2"
+                placeholder="Daily Price"
+                name="dailyPrice"
+                value={formData.dailyPrice}
+                onChange={handleInputChange}
+              />
+              <input
+                type="date"
+                className="border rounded p-2 w-full mb-2"
+                name="availableFrom"
+                value={formData.availableFrom}
+                onChange={handleInputChange}
+              />
+              <input
+                type="date"
+                className="border rounded p-2 w-full mb-2"
+                name="availableTo"
+                value={formData.availableTo}
+                onChange={handleInputChange}
+              />
+              <textarea
+                className="border rounded p-2 w-full mb-2"
+                placeholder="Description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+              ></textarea>
               <div className="mb-4">
                 <label className="block mb-2">Features</label>
-                <input
-                  type="text"
-                  value={featureInput}
-                  onChange={(e) => setFeatureInput(e.target.value)}
-                  className="border rounded p-2 w-full"
-                />
-                <button type="button" onClick={handleAddFeature} className="mt-2 bg-blue-600 text-white px-2 py-1 rounded">Add Feature</button>
-                <div>
-                  {features.map((feature, index) => (
-                    <span key={index} className="bg-gray-200 rounded-full px-2 py-1 mr-2 inline-block">{feature}</span>
-                  ))}
+                <div className="flex">
+                  <input
+                    type="text"
+                    value={featureInput}
+                    onChange={(e) => setFeatureInput(e.target.value)}
+                    className="border rounded p-2 w-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddFeature}
+                    className="ml-2 bg-blue-600 text-white p-2 rounded"
+                  >
+                    Add
+                  </button>
                 </div>
+                <ul className="list-disc pl-5 mt-2">
+                  {features.map((feature, index) => (
+                    <li key={index} className="flex justify-between">
+                      <span>{feature}</span>
+                      <button
+                        className="text-red-600"
+                        onClick={() =>
+                          setFeatures(features.filter((_, i) => i !== index))
+                        }
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="flex justify-between">
-                <button type="button" onClick={() => { setIsModalOpen(false); setIsEditModalOpen(false); }} className="bg-gray-400 text-white px-4 py-2 rounded">Cancel</button>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">{currentCar ? "Update Car" : "Add Car"}</button>
-              </div>
+              <input
+                type="file"
+                onChange={handleImageChange}
+                className="mb-4"
+              />
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-4 py-2 rounded"
+              >
+                {isEditing ? "Update Car" : "Add Car"}
+              </button>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="bg-gray-400 text-white px-4 py-2 rounded ml-2"
+              >
+                Cancel
+              </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-1/3">
-            <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
+            <h2 className="text-xl font-semibold mb-4">Confirm Deletion</h2>
             <p>Are you sure you want to delete this car?</p>
-            <div className="flex justify-between mt-4">
+            <div className="mt-4 flex justify-center">
               <button
-                onClick={() => handleDeleteConfirm(currentCar.id)}
-                className="bg-red-600 text-white px-4 py-2 rounded"
+                onClick={confirmDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded mr-2"
               >
                 Delete
               </button>

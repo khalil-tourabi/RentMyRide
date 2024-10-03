@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { addCar, deleteCar, getCar, getAllCars, updateCar, confirmBooking, cancelBooking, getBookingsByStatus, getUserProfile, updateUserProfile } from '../controllers/AgencyController';
+import { addCar, deleteCar, getCar, getAllCars, updateCar, confirmBooking, cancelBooking, getBookingsByStatus, getUserProfile, updateUserProfile, getAgencyCars } from '../controllers/AgencyController';
 import upload from '../middlewares/multer';
 import { tokenVerification } from '../middlewares/tokenVerification';
 import isAgency from '../middlewares/agencyVerification';
@@ -7,8 +7,9 @@ import isAgency from '../middlewares/agencyVerification';
 const agencyRoute: Router = express.Router();
 
 agencyRoute.post('/addcar', tokenVerification, isAgency, upload.single('image'), addCar);
-agencyRoute.post('/deletecar/:carId', tokenVerification, isAgency, deleteCar);
+agencyRoute.delete('/deletecar/:carId', tokenVerification, isAgency, deleteCar);
 agencyRoute.post('/getcar', tokenVerification, isAgency, getCar);
+agencyRoute.get('/getagencycars/:userId', tokenVerification, isAgency, getAgencyCars);
 agencyRoute.get('/getallcars', tokenVerification, isAgency, getAllCars);
 agencyRoute.put('/updatecar/:carId', tokenVerification, isAgency, upload.single('image'), updateCar);
 agencyRoute.post('/confirmbooking/:bookingId', tokenVerification, isAgency, confirmBooking);

@@ -15,6 +15,7 @@ export const addCar = async (req: Request, res: Response): Promise<Response> => 
         dailyPrice,
         availableFrom,
         availableTo,
+        features, // Added features from the request body
     } = req.body;
 
     if (!ownerId || !brand || !model || !year || !dailyPrice || !availableFrom || !availableTo) {
@@ -28,6 +29,7 @@ export const addCar = async (req: Request, res: Response): Promise<Response> => 
     }
 
     try {
+        // Create the car entry
         const newCar = await prisma.car.create({
             data: {
                 ownerId: parseInt(ownerId),
@@ -36,12 +38,23 @@ export const addCar = async (req: Request, res: Response): Promise<Response> => 
                 year: parseInt(year),
                 mileage: parseInt(mileage) || 0,
                 description: description || null,
-                dailyPrice : parseFloat(dailyPrice),
+                dailyPrice: parseFloat(dailyPrice),
                 availableFrom: new Date(availableFrom),
                 availableTo: new Date(availableTo),
                 image: image.path,
             },
         });
+
+        // Create car features if provided
+        if (features && features.length > 0) {
+            const carFeatures = features.map((feature: string) => ({
+                carId: newCar.id,
+                name: feature,
+            }));
+            await prisma.carFeature.createMany({
+                data: carFeatures,
+            });
+        }
 
         return res.status(StatusCodes.CREATED).json(newCar);
     } catch (error) {
@@ -52,29 +65,46 @@ export const addCar = async (req: Request, res: Response): Promise<Response> => 
     }
 };
 
-
 export const deleteCar = async (req: Request, res: Response) => {
-    const carId = parseInt(req.params.carId);
+    const carId = parseInt(req.params.carId); // Extract car ID from request parameters
 
     try {
+        // Check if the car exists before trying to delete it
         const carExists = await prisma.car.findUnique({
             where: { id: carId },
-        })
+        });
 
         if (!carExists) {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
         }
 
-        const deletedCar = await prisma.car.delete({
+        // Delete associated bookings first
+        await prisma.booking.deleteMany({
+            where: { carId: carId },
+        });
+
+        // Delete associated reviews
+        await prisma.review.deleteMany({
+            where: { carId: carId },
+        });
+
+        // Optionally, delete associated features as well
+        await prisma.carFeature.deleteMany({
+            where: { carId: carId },
+        });
+
+        // Now delete the car
+        await prisma.car.delete({
             where: { id: carId },
         });
 
-        return res.status(StatusCodes.OK).json(deletedCar);
+        return res.status(StatusCodes.OK).json({ message: "Car deleted successfully." });
     } catch (error) {
         console.error("Error deleting car:", error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while deleting the car." });
     }
-}
+};
+
 
 export const getCar = async (req: Request, res: Response) => {
     const { carId } = req.body;
@@ -109,7 +139,7 @@ export const getAllCars = async (req: Request, res: Response) => {
 
 export const updateCar = async (req: Request, res: Response) => {
     const carId = parseInt(req.params.carId);
-
+    
     const {
         brand,
         model,
@@ -118,11 +148,12 @@ export const updateCar = async (req: Request, res: Response) => {
         description,
         dailyPrice,
         availableFrom,
-        availableTo
+        availableTo,
+        features, // Include features from the request body
     } = req.body;
 
     // Handle the uploaded file if available
-    const imageUrl = req.file ? req.file.path : undefined; // Assuming the file URL is stored in req.file.path
+    const imageUrl = req.file ? req.file.path : undefined;
 
     try {
         const carExists = await prisma.car.findUnique({
@@ -133,6 +164,7 @@ export const updateCar = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
         }
 
+        // Update car details
         const updatedCar = await prisma.car.update({
             where: { id: carId },
             data: {
@@ -141,12 +173,29 @@ export const updateCar = async (req: Request, res: Response) => {
                 year: parseInt(year),
                 mileage: parseInt(mileage) || 0,
                 description: description || null,
-                dailyPrice : parseFloat(dailyPrice),
+                dailyPrice: parseFloat(dailyPrice),
                 availableFrom: new Date(availableFrom),
                 availableTo: new Date(availableTo),
-                image: imageUrl || carExists.image,
+                image: imageUrl || carExists.image, // Use existing image if no new image provided
             },
         });
+
+        // Update car features
+        if (features && features.length > 0) {
+            // Remove existing features
+            await prisma.carFeature.deleteMany({
+                where: { carId: carId },
+            });
+
+            // Add new features
+            const carFeatures = features.map((feature: string) => ({
+                carId: updatedCar.id,
+                name: feature,
+            }));
+            await prisma.carFeature.createMany({
+                data: carFeatures,
+            });
+        }
 
         return res.status(StatusCodes.OK).json(updatedCar);
     } catch (error) {
@@ -306,3 +355,24 @@ export const updateUserProfile = async (req: Request, res: Response) => {
     }
 };
 
+export const getAgencyCars = async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId); // Get userId from the request params
+
+    try {
+        const cars = await prisma.car.findMany({
+            where: { ownerId: userId }, // Find cars where ownerId matches the userId
+            include: {
+                features: true, // Include features if needed
+            },
+        });
+
+        if (!cars.length) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: "No cars found for this user." });
+        }
+
+        return res.status(StatusCodes.OK).json(cars);
+    } catch (error) {
+        console.error("Error fetching agency cars:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching the cars." });
+    }
+};

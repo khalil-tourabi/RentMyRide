@@ -1,4 +1,4 @@
-import { BookingStatus, PrismaClient } from '@prisma/client';
+import { BookingStatus, PaymentMethod, PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import { StatusCodes } from "http-status-codes";
 
@@ -197,10 +197,10 @@ export const updateUserDetails = async (req: Request, res: Response) => {
 };
 
 export const BookCar = async (req: Request, res: Response) => {
-    const { carId, renterId, startDate, endDate, paymentMethod, deliveryAddress, returnAddress, deliveryTime, returnTime } = req.body;
+    const { carId, renterId, startDate, endDate, deliveryAddress, returnAddress, deliveryTime, returnTime } = req.body;
 
     // Validate required fields
-    if (!carId || !renterId || !startDate || !endDate || !paymentMethod) {
+    if (!carId || !renterId || !startDate || !endDate) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "All fields are required." });
     }
 
@@ -230,7 +230,7 @@ export const BookCar = async (req: Request, res: Response) => {
             return res.status(StatusCodes.CONFLICT).json({ error: "Car is already booked for the selected dates." });
         }
 
-        // Calculate total amount (you may want to customize this calculation)
+        // Fetch the car's details
         const car = await prisma.car.findUnique({
             where: { id: carId },
         });
@@ -239,17 +239,21 @@ export const BookCar = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
         }
 
-        const totalAmount = car.dailyPrice * ((end.getTime() - start.getTime()) / (1000 * 3600 * 24)); // Calculate days
+        // Calculate the total number of days (endDate - startDate)
+        const daysRented = Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)); // Number of days
+
+        // Calculate the total amount based on the number of days and car's daily price
+        const totalAmount = car.dailyPrice * daysRented;
 
         // Create the booking
         const booking = await prisma.booking.create({
             data: {
                 carId,
-                renterId,
+                renterId: parseInt(renterId),
                 startDate: start,
                 endDate: end,
                 totalAmount,
-                paymentMethod,
+                paymentMethod: PaymentMethod.AGENCY, // You can customize this
                 deliveryAddress,
                 returnAddress,
                 deliveryTime,
@@ -264,6 +268,7 @@ export const BookCar = async (req: Request, res: Response) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while booking the car." });
     }
 };
+
 
 export const addReview = async (req: Request, res: Response) => {
     const { carId, renterId, rating, comment } = req.body;

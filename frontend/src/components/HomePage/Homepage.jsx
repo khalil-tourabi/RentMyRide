@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom";
 
 const Homepage = () => {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [rating, setRating] = useState(1);
   const [cars, setCars] = useState([]);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [filteredCars, setFilteredCars] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCity] = useState("");
+  const [setCities] = useState([]);
+  const navigate = useNavigate();
 
-  // Fetch cars from the backend
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -16,11 +18,14 @@ const Homepage = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming you use token-based auth
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
         const data = await response.json();
-        setCars(data); // Set the cars fetched from backend
+        setCars(data);
+        setFilteredCars(data);
+        const uniqueCities = [...new Set(data.map(car => car.agencyCity))];
+        setCities(uniqueCities);
       } catch (error) {
         console.error("Error fetching cars:", error);
       }
@@ -29,36 +34,61 @@ const Homepage = () => {
     fetchCars();
   }, []);
 
-  // Function to handle click and navigate to the car details page
+  const handleSearch = () => {
+    let filtered = cars;
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(car =>
+        car.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.brand.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by selected city
+    if (selectedCity) {
+      filtered = filtered.filter(car => car.agencyCity === selectedCity);
+    }
+
+    // Filter by minimum price
+    if (minPrice) {
+      filtered = filtered.filter(car => car.dailyPrice >= parseFloat(minPrice));
+    }
+
+    // Filter by maximum price
+    if (maxPrice) {
+      filtered = filtered.filter(car => car.dailyPrice <= parseFloat(maxPrice));
+    }
+
+    setFilteredCars(filtered);
+  };
+
   const handleCardClick = (carId) => {
-    navigate(`/car/${carId}`); // Navigate to the car details page with the car ID
+    navigate(`/car/${carId}`);
   };
 
   return (
-    <div className="">
-      {/* search component */}
+    <div>
+      {/* Search component */}
       <div className="wrapper flex justify-center py-5">
         <div className="flex justify-center space-x-10 p-4 w-1/2 border border-1 border-gray-300 rounded-2xl shadow-lg">
           <input
             type="text"
-            placeholder="Search..."
-            className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-1/3"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by car model or brand..."
+            className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-2/3"
           />
-          <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-1/3">
-            <option value="" disabled>
-              Choose a city
-            </option>
-            <option value="option1">Option 1</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
-          </select>
-          <button className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <button
+            onClick={handleSearch}
+            className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
             Search
           </button>
         </div>
       </div>
 
-      {/* filters */}
+      {/* Filters */}
       <div className="flex justify-center py-5">
         <div className="flex items-center p-4 bg-gray-100 rounded-xl shadow-xl space-x-14">
           <div className="flex flex-col">
@@ -79,48 +109,33 @@ const Homepage = () => {
               className="mt-1 p-2 border border-gray-300 rounded-xl"
             />
           </div>
-          <div className="flex flex-col">
-            <label className="text-sm font-medium">Rating:</label>
-            <select
-              value={rating}
-              onChange={(e) => setRating(e.target.value)}
-              className="mt-1 p-2 border border-gray-300 rounded-xl"
-            >
-              {[1, 2, 3, 4, 5].map((star) => (
-                <option key={star} value={star}>
-                  {star} Star{star > 1 ? "s" : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button className="p-2 mt-5 bg-blue-500 text-white rounded-xl hover:bg-blue-600">
+          <button
+            onClick={handleSearch}
+            className="p-2 mt-5 bg-blue-500 text-white rounded-xl hover:bg-blue-600"
+          >
             Apply Filters
           </button>
         </div>
       </div>
 
-      {/* cards */}
+      {/* Cards */}
       <div className="justify-center">
         <div className="grid grid-cols-3 gap-4 p-4">
-          {cars.map((car) => (
+          {filteredCars.map((car) => (
             <div
               key={car.id}
-              onClick={() => handleCardClick(car.id)} // Navigate when card is clicked
+              onClick={() => handleCardClick(car.id)}
               className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow duration-300"
             >
-              <a href="#">
-                <img
-                  className="p-8 rounded-t-lg"
-                  src={car.image || "https://via.placeholder.com/150"} // Use car image or a placeholder
-                  alt={car.model}
-                />
-              </a>
+              <img
+                className="p-8 rounded-t-lg"
+                src={car.image || "https://via.placeholder.com/150"}
+                alt={car.model}
+              />
               <div className="px-5 pb-5">
-                <a href="#">
-                  <h5 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                    {car.brand} {car.model} ({car.year})
-                  </h5>
-                </a>
+                <h5 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                  {car.brand} {car.model} ({car.year})
+                </h5>
                 <div className="flex items-center justify-between">
                   <span className="text-3xl font-bold text-gray-800 dark:text-white">
                     ${car.dailyPrice.toFixed(2)}

@@ -376,3 +376,35 @@ export const getAgencyCars = async (req: Request, res: Response) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching the cars." });
     }
 };
+
+export const getBookings = async (req: Request, res: Response) => {
+    try {
+        const userId  = parseInt(req.params.userId); // Get userId from the request body
+
+        // Find the agency using the userId
+        const agency = await prisma.agency.findFirst({
+            where: { userId },
+            select: {
+                id: true, // Get the agency ID to filter bookings
+            },
+        });
+
+        if (!agency) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: "Agency not found." });
+        }
+
+        // Fetch bookings related to the agency
+        const bookings = await prisma.booking.findMany({
+            where: { agencyId: agency.id }, // Filter bookings by agency ID
+            include: {
+                car: true,   // Include car details
+                renter: true  // Include renter details
+            }
+        });
+
+        return res.status(StatusCodes.OK).json(bookings);
+    } catch (error) {
+        console.error("Error fetching bookings:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching bookings." });
+    }
+};

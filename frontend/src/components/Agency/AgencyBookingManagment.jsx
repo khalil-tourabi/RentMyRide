@@ -1,26 +1,33 @@
-import { useState } from "react";
-
-const initialBookings = [
-  {
-    id: 1,
-    car: "Honda Accord",
-    user: "Jane Smith",
-    startDate: "2024-10-01",
-    endDate: "2024-10-07",
-    status: "Confirmed",
-    totalAmount: "$350",
-    paymentMethod: "Online",
-    deliveryAddress: "123 Main St, Cityville",
-    returnAddress: "456 Elm St, Cityville",
-  },
-  // Add more sample bookings as needed
-];
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const ManageBookings = () => {
-  const [bookings, setBookings] = useState(initialBookings);
+  const [bookings, setBookings] = useState([]);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [currentBooking, setCurrentBooking] = useState(null);
+
+  // Fetch bookings on component mount
+  useEffect(() => {
+    const fetchBookings = async () => {
+      const userId = localStorage.getItem("userId"); // Get userId from localStorage
+      const token = localStorage.getItem("token"); // Get token from localStorage
+      try {
+        const response = await axios.get(`http://localhost:3000/api/getbookingbyagency`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: { userId }, // Send userId as a query parameter
+        });
+
+        setBookings(response.data); // Update state with the fetched bookings
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      }
+    };
+
+    fetchBookings();
+  }, []);
 
   const handleView = (booking) => {
     setCurrentBooking(booking);
@@ -46,7 +53,6 @@ const ManageBookings = () => {
   };
 
   const confirmBooking = () => {
-    // Add logic to confirm the booking (e.g., API call)
     alert("Booking confirmed!");
     setIsViewModalOpen(false);
   };
@@ -68,8 +74,8 @@ const ManageBookings = () => {
         <tbody>
           {bookings.map((booking) => (
             <tr key={booking.id} className="border-b hover:bg-gray-100">
-              <td className="py-2 px-4">{booking.car}</td>
-              <td className="py-2 px-4">{booking.user}</td>
+              <td className="py-2 px-4">{booking.car.model}</td>
+              <td className="py-2 px-4">{booking.renter.username}</td>
               <td className="py-2 px-4">{booking.startDate}</td>
               <td className="py-2 px-4">{booking.endDate}</td>
               <td className="py-2 px-4 text-green-600">
@@ -106,8 +112,8 @@ const ManageBookings = () => {
             <h2 className="text-2xl font-semibold mb-4">Booking Details</h2>
             {currentBooking && (
               <>
-                <p><strong>Car:</strong> {currentBooking.car}</p>
-                <p><strong>User:</strong> {currentBooking.user}</p>
+                <p><strong>Car:</strong> {currentBooking.car.model}</p>
+                <p><strong>User:</strong> {currentBooking.renter.username}</p>
                 <p><strong>Start Date:</strong> {currentBooking.startDate}</p>
                 <p><strong>End Date:</strong> {currentBooking.endDate}</p>
                 <p><strong>Status:</strong> {currentBooking.status}</p>

@@ -250,6 +250,7 @@ export const BookCar = async (req: Request, res: Response) => {
             data: {
                 carId,
                 renterId: parseInt(renterId),
+                agenceId: car.ownerId,
                 startDate: start,
                 endDate: end,
                 totalAmount,

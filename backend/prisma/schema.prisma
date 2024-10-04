@@ -119,6 +119,7 @@ model Booking {
   carId           Int
   renterId        Int
   agencyId        Int? // Agency booking for agency-owned cars
+  agenceId        Int
   startDate       DateTime
   endDate         DateTime
   totalAmount     Float

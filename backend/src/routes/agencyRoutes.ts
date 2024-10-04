@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { addCar, deleteCar, getCar, getAllCars, updateCar, confirmBooking, cancelBooking, getBookingsByStatus, getUserProfile, updateUserProfile, getAgencyCars } from '../controllers/AgencyController';
+import { addCar, deleteCar, getCar, getAllCars, updateCar, confirmBooking, cancelBooking, getBookingsByStatus, getUserProfile, updateUserProfile, getAgencyCars, getBookings } from '../controllers/AgencyController';
 import upload from '../middlewares/multer';
 import { tokenVerification } from '../middlewares/tokenVerification';
 import isAgency from '../middlewares/agencyVerification';
@@ -17,5 +17,6 @@ agencyRoute.post('/cancelbooking/:bookingId', tokenVerification, isAgency, cance
 agencyRoute.get('/getbookingsbystatus/:status', tokenVerification, isAgency, getBookingsByStatus);
 agencyRoute.get('/getagencyprofile/:userId', tokenVerification, isAgency, getUserProfile);
 agencyRoute.put('/updateagencyprofile/:userId', tokenVerification, isAgency, updateUserProfile);
+agencyRoute.get('/getbookingbyagency', tokenVerification, isAgency, getBookings);
 
 export default agencyRoute;

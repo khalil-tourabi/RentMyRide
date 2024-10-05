@@ -224,31 +224,6 @@ export const cancelBooking = async (req: Request, res: Response) => {
     }
 };
 
-export const getBookingsByStatus = async (req: Request, res: Response) => {
-    const status = req.params.status as BookingStatus | "ALL";
-
-    if (status !== "ALL" && !Object.values(BookingStatus).includes(status as BookingStatus)) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid status value." });
-    }
-
-    try {
-        const bookings = await prisma.booking.findMany({
-            where: {
-                status: status === "ALL" ? undefined : status as BookingStatus,
-            },
-            include: {
-                car: true,
-                renter: true
-            }
-        });
-
-        return res.status(StatusCodes.OK).json(bookings);
-    } catch (error) {
-        console.error("Error fetching bookings:", error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching bookings." });
-    }
-};
-
 export const getUserProfile = async (req: Request, res: Response) => {
     const userId = parseInt(req.params.userId);
 

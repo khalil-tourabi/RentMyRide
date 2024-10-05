@@ -37,7 +37,6 @@ const Homepage = () => {
   const handleSearch = () => {
     let filtered = cars;
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(car =>
         car.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,17 +44,14 @@ const Homepage = () => {
       );
     }
 
-    // Filter by selected city
     if (selectedCity) {
       filtered = filtered.filter(car => car.agencyCity === selectedCity);
     }
 
-    // Filter by minimum price
     if (minPrice) {
       filtered = filtered.filter(car => car.dailyPrice >= parseFloat(minPrice));
     }
 
-    // Filter by maximum price
     if (maxPrice) {
       filtered = filtered.filter(car => car.dailyPrice <= parseFloat(maxPrice));
     }
@@ -69,7 +65,6 @@ const Homepage = () => {
 
   return (
     <div>
-      {/* Search component */}
       <div className="wrapper flex justify-center py-5">
         <div className="flex justify-center space-x-10 p-4 w-1/2 border border-1 border-gray-300 rounded-2xl shadow-lg">
           <input
@@ -88,7 +83,6 @@ const Homepage = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="flex justify-center py-5">
         <div className="flex items-center p-4 bg-gray-100 rounded-xl shadow-xl space-x-14">
           <div className="flex flex-col">
@@ -118,7 +112,6 @@ const Homepage = () => {
         </div>
       </div>
 
-      {/* Cards */}
       <div className="justify-center">
         <div className="grid grid-cols-3 gap-4 p-4">
           {filteredCars.map((car) => (

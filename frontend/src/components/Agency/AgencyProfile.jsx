@@ -55,7 +55,6 @@ const ClientProfile = () => {
           zipCode: profile?.zipCode || "",
         });
 
-        // Set agency data if user is part of an agency
         if (agency) {
           setAgencyData({
             name: agency?.name || "",
@@ -66,7 +65,6 @@ const ClientProfile = () => {
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        // You can reset profileData and agencyData to default values if error occurs
         setProfileData({
           username: "",
           email: "",
@@ -111,7 +109,6 @@ const ClientProfile = () => {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
 
-      // Update profile and agency data in one request
       await axios.put(
         `http://localhost:3000/api/updateagencyprofile/${userId}`,
         { profileData, agencyData },
@@ -140,7 +137,6 @@ const ClientProfile = () => {
         </button>
       </div>
 
-      {/* Personal Information Section */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
         <h3 className="text-xl font-semibold mb-4">Personal Information</h3>
         <div className="grid grid-cols-2 gap-4">
@@ -227,7 +223,6 @@ const ClientProfile = () => {
         </div>
       </div>
 
-      {/* Agency Information Section */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
         <h3 className="text-xl font-semibold mb-4">Agency Information</h3>
         <div className="grid grid-cols-2 gap-4">
@@ -266,7 +261,6 @@ const ClientProfile = () => {
         </div>
       </div>
 
-      {/* Save Button */}
       {isEditing && (
         <button
           className="bg-green-500 text-white py-2 px-4 rounded mt-4"

@@ -18,7 +18,6 @@ const reviewsData = [
     rating: 5,
     review: "Highly recommend! Very professional and friendly staff.",
   },
-  // Add more reviews as needed
 ];
 
 const AgencyReviews = () => {

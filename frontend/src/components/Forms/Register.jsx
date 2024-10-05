@@ -38,9 +38,7 @@ const Register = () => {
         userType: data.userType,
       });
 
-      // Handle successful registration
       console.log('User registered:', response.data);
-      // Optionally, redirect to another page after success
       window.location.href = '/login';
 
     } catch (error) {

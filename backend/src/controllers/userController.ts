@@ -30,12 +30,11 @@ export const getUserByEmail = async (req: Request, res: Response) => {
     }
 
     try {
-        // Find the user by email
         const user = await prisma.user.findUnique({
-            where: { email: String(email) }, // Ensure the email is of type string
+            where: { email: String(email) }, 
             select: {
                 id: true,
-                userType: true, // Return the user type (ADMIN, CLIENT, AGENCY)
+                userType: true,
             },
         });
 
@@ -43,7 +42,6 @@ export const getUserByEmail = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Respond with the user's ID and userType
         res.status(200).json(user);
     } catch (error) {
         console.error("Error fetching user:", error);
@@ -52,16 +50,16 @@ export const getUserByEmail = async (req: Request, res: Response) => {
 };
 
 export const getUserBookings = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId);  // Ensure userId is a number
+    const userId = parseInt(req.params.userId);  
     if (isNaN(userId)) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid user ID" });
     }
 
     try {
         const bookings = await prisma.booking.findMany({
-            where: { renterId: userId },  // Link userId to renterId
+            where: { renterId: userId },  
             include: {
-                car: {  // Include car details for each booking
+                car: {  
                     select: {
                         id: true,
                         brand: true,
@@ -77,7 +75,7 @@ export const getUserBookings = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ message: "No bookings found for this user." });
         }
 
-        return res.status(StatusCodes.OK).json(bookings);  // Send the bookings with car details
+        return res.status(StatusCodes.OK).json(bookings);  
     } catch (error) {
         console.error("Error getting user bookings:", error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while getting the user bookings." });
@@ -86,17 +84,17 @@ export const getUserBookings = async (req: Request, res: Response) => {
 
 
 export const getUserReviews = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId);  // Ensure userId is a number
+    const userId = parseInt(req.params.userId);  
     if (isNaN(userId)) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid user ID" });
     }
 
     try {
         const reviews = await prisma.review.findMany({
-            where: { renterId: userId },  // Ensure 'renterId' is the correct field
-            include: {                    // Include related car details
+            where: { renterId: userId },  
+            include: {                    
                 car: {
-                    select: {              // Select specific fields to return
+                    select: {        
                         id: true,
                         brand: true,
                         model: true,
@@ -105,7 +103,7 @@ export const getUserReviews = async (req: Request, res: Response) => {
             },
         });
 
-        return res.status(StatusCodes.OK).json(reviews);  // Send the reviews with car details as response
+        return res.status(StatusCodes.OK).json(reviews); 
     } catch (error) {
         console.error("Error getting user reviews:", error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while getting the user reviews." });
@@ -114,22 +112,22 @@ export const getUserReviews = async (req: Request, res: Response) => {
 
 
 export const getUserProfile = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId);  // Extract the user ID from request params
+    const userId = parseInt(req.params.userId); 
 
     if (isNaN(userId)) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid user ID" });
     }
 
     try {
-        // Query to find user data
+        
         const user = await prisma.user.findUnique({
-            where: { id: userId },  // Assuming 'id' is the primary key for users
+            where: { id: userId },  
             select: {
                 id: true,
                 username: true,
                 email: true,
                 phone: true,
-                userType: true   // Include fields you want to return in the user profile
+                userType: true   
             }
         });
 
@@ -137,9 +135,9 @@ export const getUserProfile = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "User not found" });
         }
 
-        // Separate query to find profile data
+    
         const profile = await prisma.profile.findUnique({
-            where: { userId: userId },  // Assuming 'userId' is the foreign key in the profile table
+            where: { userId: userId },  
             select: {
                 firstName: true,
                 lastName: true,
@@ -151,11 +149,6 @@ export const getUserProfile = async (req: Request, res: Response) => {
             }
         });
 
-        // if (!profile) {
-        //     return res.status(StatusCodes.NOT_FOUND).json({ error: "Profile not found" });
-        // }
-
-        // Combine the user and profile data in the response
         return res.status(StatusCodes.OK).json({
             user,
             profile
@@ -170,19 +163,16 @@ export const updateUserDetails = async (req: Request, res: Response) => {
     const userId = parseInt(req.params.userId);
     const { username, email, phone, firstName, lastName, idNumber, address, city, country, zipCode } = req.body;
 
-    // Validate required fields
     if (!username || !email || !phone || !firstName || !lastName || !idNumber || !address || !city || !country || !zipCode) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "All fields are required." });
     }
 
     try {
-        // Update user details
         const user = await prisma.user.update({
             where: { id: userId },
             data: { username, email, phone },
         });
 
-        // Update profile details
         const profile = await prisma.profile.upsert({
             where: { userId: userId },
             update: { firstName, lastName, idNumber, address, city, country, zipCode },
@@ -199,12 +189,10 @@ export const updateUserDetails = async (req: Request, res: Response) => {
 export const BookCar = async (req: Request, res: Response) => {
     const { carId, renterId, startDate, endDate, deliveryAddress, returnAddress, deliveryTime, returnTime } = req.body;
 
-    // Validate required fields
     if (!carId || !renterId || !startDate || !endDate) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "All fields are required." });
     }
 
-    // Check if the dates are valid
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start >= end) {
@@ -212,15 +200,14 @@ export const BookCar = async (req: Request, res: Response) => {
     }
 
     try {
-        // Check if the car is available for the given dates
         const existingBookings = await prisma.booking.findMany({
             where: {
                 carId,
                 status: { not: BookingStatus.CANCELLED },
                 OR: [
                     {
-                        startDate: { lte: end }, // Existing booking starts before or on the end date
-                        endDate: { gte: start }, // Existing booking ends after or on the start date
+                        startDate: { lte: end }, 
+                        endDate: { gte: start }, 
                     },
                 ],
             },
@@ -230,7 +217,6 @@ export const BookCar = async (req: Request, res: Response) => {
             return res.status(StatusCodes.CONFLICT).json({ error: "Car is already booked for the selected dates." });
         }
 
-        // Fetch the car's details
         const car = await prisma.car.findUnique({
             where: { id: carId },
         });
@@ -239,13 +225,10 @@ export const BookCar = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
         }
 
-        // Calculate the total number of days (endDate - startDate)
-        const daysRented = Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)); // Number of days
+        const daysRented = Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24));
 
-        // Calculate the total amount based on the number of days and car's daily price
         const totalAmount = car.dailyPrice * daysRented;
 
-        // Create the booking
         const booking = await prisma.booking.create({
             data: {
                 carId,
@@ -254,7 +237,7 @@ export const BookCar = async (req: Request, res: Response) => {
                 startDate: start,
                 endDate: end,
                 totalAmount,
-                paymentMethod: PaymentMethod.AGENCY, // You can customize this
+                paymentMethod: PaymentMethod.AGENCY, 
                 deliveryAddress,
                 returnAddress,
                 deliveryTime,
@@ -274,13 +257,11 @@ export const BookCar = async (req: Request, res: Response) => {
 export const addReview = async (req: Request, res: Response) => {
     const { carId, renterId, rating, comment } = req.body;
 
-    // Validate required fields
     if (typeof rating !== 'number' || rating < 1 || rating > 5 || !carId || !renterId) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Invalid input. Rating must be between 1 and 5 and other fields are required." });
     }
 
     try {
-        // Create a new review
         const review = await prisma.review.create({
             data: {
                 carId,

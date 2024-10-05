@@ -48,7 +48,6 @@ const ClientProfile = () => {
         });
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        // Set default empty values if there's an error
         setProfileData({
           username: "",
           email: "",

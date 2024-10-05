@@ -13,7 +13,6 @@ const AdminUserManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {/* Sample Data */}
           <tr className="border-b hover:bg-gray-100">
             <td className="py-2 px-4">John Doe</td>
             <td className="py-2 px-4">john@example.com</td>
@@ -23,7 +22,6 @@ const AdminUserManagement = () => {
               <button className="text-red-600 hover:underline ml-2">Delete</button>
             </td>
           </tr>
-          {/* More rows as needed */}
         </tbody>
       </table>
     </div>

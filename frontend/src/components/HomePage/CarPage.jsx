@@ -14,7 +14,6 @@ const CarDetails = () => {
   const [returnAddress, setReturnAddress] = useState("");
   const navigate = useNavigate();
 
-  // Fetch car details from the backend
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
@@ -29,42 +28,38 @@ const CarDetails = () => {
     fetchCarDetails();
   }, [carId]);
 
-  // Function to handle the book button click
   const handleBookClick = async () => {
     const token = localStorage.getItem("token");
     const userType = localStorage.getItem("userType") || "";
-    const userId = localStorage.getItem("userId"); // Assuming userId is stored in localStorage
+    const userId = localStorage.getItem("userId"); 
 
-    // Check if user is logged in
     if (!token) {
       navigate("/login");
       return;
     }
 
-    // Check if user is a CLIENT
     if (userType !== "CLIENT") {
       alert("Only clients can book a car.");
       return;
     }
 
-    // Proceed with booking logic here
     try {
       const bookingData = {
         carId: car.id,
-        renterId: userId, // The ID of the user who is booking
-        startDate: startDate.toISOString(), // Convert date to ISO string
+        renterId: userId, 
+        startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        deliveryAddress: deliveryAddress || "Default Delivery Address", // Customize or set default values
+        deliveryAddress: deliveryAddress || "Default Delivery Address",
         returnAddress: returnAddress || "Default Return Address",
-        deliveryTime: startDate, // Placeholder value for delivery time
-        returnTime: endDate, // Placeholder value for return time
+        deliveryTime: startDate,
+        returnTime: endDate,
       };
 
       const response = await fetch("http://localhost:3000/api/bookcar", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Pass the token for authentication
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(bookingData),
       });

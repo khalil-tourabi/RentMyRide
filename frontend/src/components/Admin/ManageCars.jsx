@@ -15,7 +15,6 @@ const AdminCarsManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {/* Sample Data */}
           <tr className="border-b hover:bg-gray-100">
             <td className="py-2 px-4">Toyota Camry</td>
             <td className="py-2 px-4">$50/day</td>
@@ -27,7 +26,6 @@ const AdminCarsManagement = () => {
               </button>
             </td>
           </tr>
-          {/* More rows as needed */}
         </tbody>
       </table>
     </div>

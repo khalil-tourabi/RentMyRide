@@ -127,7 +127,7 @@ const ManageCars = () => {
       availableTo: car.availableTo,
       description: car.description,
     });
-    setFeatures(Array.isArray(car.features) ? car.features.map(feature => feature.name) : []); // Check for features
+    setFeatures(Array.isArray(car.features) ? car.features.map(feature => feature.name) : []);
     setIsEditing(true);
     setIsModalOpen(true);
   };

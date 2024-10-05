@@ -7,20 +7,19 @@ const ManageBookings = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [currentBooking, setCurrentBooking] = useState(null);
 
-  // Fetch bookings on component mount
   useEffect(() => {
     const fetchBookings = async () => {
-      const userId = localStorage.getItem("userId"); // Get userId from localStorage
-      const token = localStorage.getItem("token"); // Get token from localStorage
+      const userId = localStorage.getItem("userId"); 
+      const token = localStorage.getItem("token");
       try {
         const response = await axios.get(`http://localhost:3000/api/getbookingbyagency`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          params: { userId }, // Send userId as a query parameter
+          params: { userId }, 
         });
 
-        setBookings(response.data); // Update state with the fetched bookings
+        setBookings(response.data); 
       } catch (error) {
         console.error("Error fetching bookings:", error);
       }
@@ -105,7 +104,6 @@ const ManageBookings = () => {
         </tbody>
       </table>
 
-      {/* View Booking Details Modal */}
       {isViewModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-1/3">
@@ -147,7 +145,6 @@ const ManageBookings = () => {
         </div>
       )}
 
-      {/* Cancel Confirmation Modal */}
       {isCancelModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-1/3">

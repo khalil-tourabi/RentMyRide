@@ -2,7 +2,6 @@
 const AdminDashboard = () => {
   return (
     <div className="flex">
-      {/* Sidebar */}
       <aside className="w-64 bg-gray-800 text-white h-screen p-4">
         <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
         <ul>
@@ -34,7 +33,6 @@ const AdminDashboard = () => {
         </ul>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 bg-gray-100 p-6">
         <header className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold">Dashboard Overview</h1>
@@ -43,7 +41,6 @@ const AdminDashboard = () => {
           </button>
         </header>
 
-        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           <div className="bg-white p-4 rounded shadow">
             <h2 className="font-bold text-lg">Total Cars</h2>
@@ -59,7 +56,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Bookings Table */}
         <div className="bg-white rounded shadow p-4">
           <h2 className="font-bold text-xl mb-4">Recent Bookings</h2>
           <table className="min-w-full">
@@ -87,7 +83,6 @@ const AdminDashboard = () => {
                 <td className="py-2 px-4">2024-10-07</td>
                 <td className="py-2 px-4 text-red-600">Pending</td>
               </tr>
-              {/* Add more rows as needed */}
             </tbody>
           </table>
         </div>

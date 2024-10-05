@@ -5,15 +5,14 @@ import { StatusCodes } from "http-status-codes";
 const prisma = new PrismaClient();
 
 export const getCar = async (req: Request, res: Response) => {
-    const { carId } = req.params; // Get carId from request params
-    console.log(carId); // Optional: For debugging
+    const { carId } = req.params; 
+    console.log(carId);
 
     try {
-        // Fetch car details, including related features and reviews
         const car = await prisma.car.findUnique({
-            where: { id: parseInt(carId) }, // Ensure carId is an integer
+            where: { id: parseInt(carId) }, 
             include: {
-                features: true, // Include car features
+                features: true, 
                 reviews: {
                     select: {
                         id: true,
@@ -22,7 +21,7 @@ export const getCar = async (req: Request, res: Response) => {
                         reviewDate: true,
                         renter: {
                             select: {
-                                username: true, // Get username of the renter who reviewed
+                                username: true, 
                             }
                         }
                     }
@@ -34,7 +33,6 @@ export const getCar = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
         }
 
-        // Respond with the car data
         return res.status(StatusCodes.OK).json(car);
     } catch (error) {
         console.error("Error getting car:", error);

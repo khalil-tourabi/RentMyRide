@@ -15,21 +15,20 @@ export const addCar = async (req: Request, res: Response): Promise<Response> => 
         dailyPrice,
         availableFrom,
         availableTo,
-        features, // Added features from the request body
+        features,
     } = req.body;
 
     if (!ownerId || !brand || !model || !year || !dailyPrice || !availableFrom || !availableTo) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Missing required fields." });
     }
 
-    // Check if an image was uploaded
-    const image = req.file; // multer adds the uploaded file to req.file
+    
+    const image = req.file;
     if (!image) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Image upload is required." });
     }
 
     try {
-        // Create the car entry
         const newCar = await prisma.car.create({
             data: {
                 ownerId: parseInt(ownerId),
@@ -45,7 +44,6 @@ export const addCar = async (req: Request, res: Response): Promise<Response> => 
             },
         });
 
-        // Create car features if provided
         if (features && features.length > 0) {
             const carFeatures = features.map((feature: string) => ({
                 carId: newCar.id,
@@ -66,10 +64,9 @@ export const addCar = async (req: Request, res: Response): Promise<Response> => 
 };
 
 export const deleteCar = async (req: Request, res: Response) => {
-    const carId = parseInt(req.params.carId); // Extract car ID from request parameters
+    const carId = parseInt(req.params.carId);
 
     try {
-        // Check if the car exists before trying to delete it
         const carExists = await prisma.car.findUnique({
             where: { id: carId },
         });
@@ -78,22 +75,18 @@ export const deleteCar = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
         }
 
-        // Delete associated bookings first
         await prisma.booking.deleteMany({
             where: { carId: carId },
         });
 
-        // Delete associated reviews
         await prisma.review.deleteMany({
             where: { carId: carId },
         });
 
-        // Optionally, delete associated features as well
         await prisma.carFeature.deleteMany({
             where: { carId: carId },
         });
 
-        // Now delete the car
         await prisma.car.delete({
             where: { id: carId },
         });
@@ -149,10 +142,9 @@ export const updateCar = async (req: Request, res: Response) => {
         dailyPrice,
         availableFrom,
         availableTo,
-        features, // Include features from the request body
+        features, 
     } = req.body;
 
-    // Handle the uploaded file if available
     const imageUrl = req.file ? req.file.path : undefined;
 
     try {
@@ -164,7 +156,6 @@ export const updateCar = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Car not found." });
         }
 
-        // Update car details
         const updatedCar = await prisma.car.update({
             where: { id: carId },
             data: {
@@ -176,18 +167,15 @@ export const updateCar = async (req: Request, res: Response) => {
                 dailyPrice: parseFloat(dailyPrice),
                 availableFrom: new Date(availableFrom),
                 availableTo: new Date(availableTo),
-                image: imageUrl || carExists.image, // Use existing image if no new image provided
+                image: imageUrl || carExists.image,
             },
         });
 
-        // Update car features
         if (features && features.length > 0) {
-            // Remove existing features
             await prisma.carFeature.deleteMany({
                 where: { carId: carId },
             });
 
-            // Add new features
             const carFeatures = features.map((feature: string) => ({
                 carId: updatedCar.id,
                 name: feature,
@@ -295,7 +283,6 @@ export const updateUserProfile = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "User not found." });
         }
 
-        // Check if the profile exists
         let updatedProfile;
         const existingProfile = await prisma.profile.findUnique({ where: { userId } });
 
@@ -313,7 +300,6 @@ export const updateUserProfile = async (req: Request, res: Response) => {
                 },
             });
         } else {
-            // Create a new profile if it doesn't exist
             updatedProfile = await prisma.profile.create({
                 data: {
                     userId: userId,
@@ -328,20 +314,17 @@ export const updateUserProfile = async (req: Request, res: Response) => {
             });
         }
 
-        // Handle agency data
         if (agencyData.name) {
             const existingAgency = await prisma.agency.findUnique({
                 where: { email: agencyData.email },
             });
 
             if (existingAgency) {
-                // Update the existing agency
                 await prisma.agency.update({
                     where: { id: existingAgency.id },
                     data: agencyData,
                 });
             } else {
-                // Create a new agency
                 await prisma.agency.create({
                     data: { ...agencyData, userId: userId },
                 });
@@ -356,13 +339,13 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 };
 
 export const getAgencyCars = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId); // Get userId from the request params
+    const userId = parseInt(req.params.userId);
 
     try {
         const cars = await prisma.car.findMany({
-            where: { ownerId: userId }, // Find cars where ownerId matches the userId
+            where: { ownerId: userId },
             include: {
-                features: true, // Include features if needed
+                features: true,
             },
         });
 
@@ -379,13 +362,12 @@ export const getAgencyCars = async (req: Request, res: Response) => {
 
 export const getBookings = async (req: Request, res: Response) => {
     try {
-        const userId  = parseInt(req.params.userId); // Get userId from the request body
+        const userId  = parseInt(req.params.userId);
 
-        // Find the agency using the userId
         const agency = await prisma.agency.findFirst({
             where: { userId },
             select: {
-                id: true, // Get the agency ID to filter bookings
+                id: true, 
             },
         });
 
@@ -393,12 +375,11 @@ export const getBookings = async (req: Request, res: Response) => {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Agency not found." });
         }
 
-        // Fetch bookings related to the agency
         const bookings = await prisma.booking.findMany({
-            where: { agencyId: agency.id }, // Filter bookings by agency ID
+            where: { agencyId: agency.id }, 
             include: {
-                car: true,   // Include car details
-                renter: true  // Include renter details
+                car: true,   
+                renter: true 
             }
         });
 

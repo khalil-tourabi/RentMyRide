@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import logo from '../../assets/logo-no-background.png';
 
-// Zod schema for form validation
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
@@ -24,21 +23,17 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      // Send POST request to backend for login
       const response = await axios.post('http://localhost:3000/api/login', {
         email: data.email,
         password: data.password,
       });
 
-      // Store the token in localStorage (or sessionStorage) after successful login
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userEmail', data.email);
 
-      // Redirect or navigate to a different page after successful login
-      window.location.href = '/';  // Assuming you have a dashboard page
+      window.location.href = '/';  
 
     } catch (error) {
-      // Handle error response from backend
       console.error('Error logging in:', error.response?.data?.message || error.message);
       setApiError(error.response?.data?.message || 'Invalid email or password');
     }

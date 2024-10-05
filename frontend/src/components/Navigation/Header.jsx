@@ -9,7 +9,6 @@ const Header = () => {
   const [userType, setUserType] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Fetch user details based on email in localStorage
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
     console.log("userEmail: ", userEmail);
@@ -105,9 +104,6 @@ const Header = () => {
                     <Dropdown.Item>
                       <Link to={"/agencybookingmanagement"}>Agency Reservations</Link>
                     </Dropdown.Item>
-                    {/* <Dropdown.Item>
-                      <Link to={"/agencyreviewhistory"}>Agency Reviews</Link>
-                    </Dropdown.Item> */}
                     <Dropdown.Item>
                       <Link to={"/agencycarmanagement"}>Agency cars</Link>
                     </Dropdown.Item>
